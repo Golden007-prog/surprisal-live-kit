@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Join the session</title>
+    <meta name="description" content="Join the session on your phone." />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#F4F0E8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#16150F" media="(prefers-color-scheme: dark)" />
+    <script>
+      // Pre-paint theme: the choice made on this device (live_kit_theme), else the system's.
+      ;(function () {
+        var t = null
+        try {
+          t = JSON.parse(localStorage.getItem('live_kit_theme') || 'null')
+        } catch (e) {}
+        var dark = t === 'dark' || (t !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        if (dark) document.documentElement.setAttribute('data-sds-theme', 'dark')
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/live-main.tsx"></script>
+  </body>
+</html>

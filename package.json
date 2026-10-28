@@ -1,0 +1,33 @@
+{
+  "name": "surprisal-live-kit",
+  "version": "1.0.0",
+  "description": "Polls, word clouds, quizzes, reactions and Q&A for live sessions. Phones join with a 4-letter code. White-label: your name, logo and colours.",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "dependencies": {
+    "qrcode-generator": "2.0.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.5",
+    "playwright": "1.62.1",
+    "typescript": "~6.0.3",
+    "vite": "^8.2.0",
+    "vitest": "^4.0.0"
+  }
+}

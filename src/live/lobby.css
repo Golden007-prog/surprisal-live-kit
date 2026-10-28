@@ -1,0 +1,216 @@
+/* The doors-open slide: the pile of names on the right, and the join card's QR Easter egg. Imported by Stage.tsx. */
+
+/* Room for the pile: the slide's own content keeps to the left of it. */
+.lv-stage-main:has(> .lv-pile) {
+  position: relative;
+  padding-right: 36%;
+}
+
+.lv-pile {
+  position: absolute;
+  top: 3%;
+  bottom: 3%;
+  right: 3%;
+  width: 30%;
+  container-type: size;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+  font-size: 16px;
+}
+.lv-pile-head {
+  flex: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 2.1cqh);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+  padding-bottom: 1.6cqh;
+  border-bottom: 1px solid var(--sds-line);
+}
+.lv-pile-head b {
+  font-weight: 500;
+  color: var(--sds-ink);
+}
+
+/* Oldest at the bottom; each newer card lands on top and covers the top of the one under it. */
+.lv-pile-stack {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-start;
+  padding-bottom: 1cqh;
+}
+.lv-pile-card {
+  --h: 11.5cqh;
+  --pad: 1.3cqh;
+  flex: none;
+  position: relative;
+  height: var(--h);
+  width: 92%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0 var(--pad);
+  padding: var(--pad);
+  background: var(--sds-card);
+  border: 1px solid var(--sds-line-strong);
+  color: var(--sds-ink);
+  transform: translateX(var(--x)) rotate(var(--r));
+  animation: lv-pile-fall 1000ms backwards;
+  animation-delay: var(--delay, 0ms);
+}
+.lv-pile-card + .lv-pile-card {
+  margin-bottom: calc(var(--h) * -0.42);
+}
+.lv-pile-card.is-new {
+  border-color: var(--sds-ink);
+}
+.lv-pile-glyph {
+  height: calc(var(--h) - 2 * var(--pad) - 2px);
+  width: auto;
+  aspect-ratio: 1;
+  display: block;
+  color: var(--sds-ink);
+  border: 1px solid var(--sds-line);
+}
+.lv-pile-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.lv-pile-no {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: var(--sds-font-mono);
+  font-size: max(10px, 1.7cqh);
+  letter-spacing: 0.12em;
+  color: var(--sds-ink-3);
+  line-height: 1;
+}
+/* The newest card's marker: the house gold square, as on the eyebrow. */
+.lv-pile-card.is-new .lv-pile-no::before {
+  content: '';
+  width: 0.8em;
+  height: 0.8em;
+  background: var(--sds-gold);
+  flex: none;
+}
+.lv-pile-name {
+  font-family: var(--sds-font-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-size: min(4.6cqh, 7.4cqw);
+  line-height: 1.02;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Gravity: it accelerates down, lands, bounces twice and settles. Transform and opacity only. */
+@keyframes lv-pile-fall {
+  0% {
+    opacity: 0;
+    transform: translate(var(--x), calc(var(--drop, 60cqh) * -1)) rotate(calc(var(--r) * -2.5));
+    animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.45);
+  }
+  8% {
+    opacity: 1;
+  }
+  56% {
+    transform: translate(var(--x), 0) rotate(var(--r));
+    animation-timing-function: cubic-bezier(0.15, 0.6, 0.4, 1);
+  }
+  72% {
+    transform: translate(var(--x), -10%) rotate(calc(var(--r) * 1.7));
+    animation-timing-function: cubic-bezier(0.6, 0, 0.9, 0.5);
+  }
+  86% {
+    transform: translate(var(--x), 0) rotate(var(--r));
+    animation-timing-function: cubic-bezier(0.15, 0.6, 0.4, 1);
+  }
+  93% {
+    transform: translate(var(--x), -2.5%) rotate(var(--r));
+    animation-timing-function: ease-in;
+  }
+  100% {
+    opacity: 1;
+    transform: translate(var(--x), 0) rotate(var(--r));
+  }
+}
+@keyframes lv-pile-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* A narrow window: the pile goes back into the flow under the join card. */
+@media (max-width: 860px) {
+  .lv-stage-main:has(> .lv-pile) {
+    padding-right: clamp(20px, 6vw, 120px);
+  }
+  .lv-pile {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: 50vh;
+  }
+}
+
+/* ------------------------------------------------------------ the QR Easter egg */
+
+/* Gold sits under every ink module. At rest the ink covers it exactly, so the code is plain dark on light. */
+.lv-qr-glint {
+  fill: var(--sds-gold);
+}
+.lv-qr.is-playful .lv-qr-m {
+  transform-box: fill-box;
+  transform-origin: center;
+  /* Assemble: the modules arrive from the centre outwards, over the gold. The finders are already there. */
+  animation: lv-qr-assemble 520ms var(--sds-ease-emphatic) backwards;
+  animation-delay: calc(var(--k) * 900ms);
+}
+/* The ripple: a wave from the centre out; a narrow band of modules dips to 70%, so the gold flashes round each dark core. */
+.lv-qr.is-playful.is-ripple .lv-qr-m {
+  animation-name: lv-qr-assemble, lv-qr-ripple;
+  animation-duration: 520ms, 380ms;
+  animation-timing-function: var(--sds-ease-emphatic), ease-in-out;
+  animation-fill-mode: backwards, none;
+  animation-delay: calc(var(--k) * 900ms), calc(var(--k) * 1400ms);
+}
+@keyframes lv-qr-assemble {
+  from {
+    transform: scale(0);
+  }
+}
+@keyframes lv-qr-ripple {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.7);
+  }
+}
+
+/* No fall and no ripple: the cards fade in, the code is simply there. */
+@media (prefers-reduced-motion: reduce) {
+  .lv .lv-pile .lv-pile-card,
+  .lv-pile .lv-pile-card {
+    transform: translateX(var(--x)) rotate(var(--r));
+    animation: lv-pile-fade 500ms ease both !important;
+  }
+  .lv .lv-qr .lv-qr-m,
+  .lv-qr .lv-qr-m {
+    animation: none !important;
+  }
+}

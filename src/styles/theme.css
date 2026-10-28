@@ -1,0 +1,151 @@
+/**
+ * The theme: every colour, font and timing the app uses. Light values live on `:root`, dark ones under
+ * [data-sds-theme='dark'] (the toggle on the host page sets it on <html>).
+ *
+ * To brand it, change these first:
+ *   --sds-gold            the accent: the leading bar, the right answer, the top word, the focus ring
+ *   --sds-on-gold         text on the accent
+ *   --sds-highlight-wash  and --sds-selection: the accent at low opacity (keep the same hue)
+ *   --sds-paper, --sds-card, --sds-ink*   the ground and the text
+ *   --sds-font-*          the four type roles
+ * Change the dark values too. Keep text at 4.5:1 or more against --sds-paper and --sds-card.
+ * The agree/disagree scale has its own palette (--lv-div-*) in src/live/live.css.
+ *
+ * To use a web font, add its <link> or @font-face (in live.html and live-host.html, or here) and put its name first
+ * in the matching --sds-font-* stack.
+ */
+
+:root {
+  /* A one-colour logo turns white on dark. For a colour logo, set this to none. */
+  --brand-logo-dark-filter: brightness(0) invert(1);
+
+  /* surfaces */
+  --sds-paper: #f4f0e8;
+  --sds-paper-2: #ede6d9;
+  --sds-card: #fbf9f3;
+
+  /* text
+     4-step ink ramp. Prefer these for typographic hierarchy: ink = headings, ink-2 = body/lede,
+     ink-3 = meta/captions, ink-4 = tertiary. Contrast on --sds-paper is 6.7:1
+     for ink-3 and 5.0:1 for ink-4 — both clear AA.
+     --sds-muted stays: it is the alpha-based secondary and its 0.62 is load
+     bearing (see below). Use the ramp for hierarchy, muted for de-emphasis. */
+  --sds-ink: #111111;
+  --sds-ink-2: #2c2a26;
+  --sds-ink-3: #57534b;
+  --sds-ink-4: #6b665c;
+  /* 0.62, not 0.56. At 0.56 this composited to #757370 and measured
+     4.16:1 on paper / 4.05:1 on paper-2 / 4.25:1 on card — under the 4.5:1
+     AA floor on all three, in the theme that is the default. 0.62 clears it
+     everywhere (5.06 / 4.90 / 5.20) with margin. Dark's 0.55 already passes
+     at 4.98:1 worst case and is deliberately left alone. */
+  --sds-muted: rgba(17, 17, 17, 0.62);
+
+  /* accents — gold is the only fully saturated color in the system */
+  --sds-gold: #e3b31a;
+  --sds-moss: #61715b;
+  --sds-lake: #a9bcc6;
+  --sds-stone: #c9c3b8;
+  --sds-deepmoss: #3f4a42;
+  --sds-mist: #dee5e6;
+  --sds-spark: #fdc300;
+
+  /* text painted on a solid accent fill */
+  --sds-on-gold: #111111;
+  --sds-on-deepmoss: #ffffff;
+
+  /* structure */
+  --sds-line: rgba(17, 17, 17, 0.13);
+  /* Emphasis comes from TONE, never weight — the Dictionary of Present Futures
+     rule (`--rule` / `--rule-strong` in ~/dopf/src/styles/global.css, where
+     every structural line in 2,400 lines is 1px and the only difference is
+     opacity). `--sds-line` already matches its `--rule` exactly; this is its
+     `--rule-strong`. Reach for this before ever thickening a border. */
+  --sds-line-strong: rgba(17, 17, 17, 0.26);
+  --sds-highlight-wash: rgba(227, 179, 26, 0.22);
+  --sds-selection: rgba(227, 179, 26, 0.32);
+  --sds-shadow-float: 0 14px 32px rgba(17, 17, 17, 0.16);
+
+  /* radii */
+  --sds-radius-pill: 0;
+  --sds-radius-card: 0;
+  --sds-radius-card-sm: 0;
+  --sds-radius-media: 0;
+
+  /* type */
+  --sds-font-display: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --sds-font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', serif;
+  --sds-font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  --sds-font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /*
+   * Motion.
+   *
+   * There used to be two tokens here — `--sds-ease-hover: 0.15s ease` and
+   * `--sds-ease-reveal: 0.6s ease` — with ten call sites, while the surface
+   * actually ran 14 distinct durations and 8 curves. Both fused duration and
+   * easing into one shorthand, which is exactly why nothing used them: a
+   * component needing `transform 0.3s` and `background 0.25s` in the same
+   * declaration had no way in. So `0.15s ease` was hand-written 13 times
+   * NEXT TO the tokenised copies.
+   *
+   * Duration steps are the nearest fit to the values already in use
+   * (.15 → fast; .25/.3/.35 → base; .4/.5/.55/.6 → slow; .65/.72 → stage),
+   * so perceived timing barely moves. They are centralised now — retuning the
+   * whole surface's tempo is a one-line change per token.
+   */
+  --sds-dur-fast: 150ms; /* hover, focus, colour, border */
+  --sds-dur-base: 300ms; /* press release, tooltip, chip lift */
+  --sds-dur-slow: 500ms; /* reveals, panel entrance */
+  --sds-dur-stage: 700ms; /* flip + hero choreography */
+
+  /* The one deliberate character change: `ease` is symmetric and slow-in,
+     which is what made hover feel mushy across 35 declarations. `--sds-ease`
+     decelerates. `--sds-ease-emphatic` was already the de-facto house curve
+     (EssayHero, EssayTitle). Revert by pointing --sds-ease back at `ease`. */
+  --sds-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --sds-ease-emphatic: cubic-bezier(0.22, 1, 0.36, 1);
+  --sds-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* One focus ring for the whole surface. A double ring (paper gap, then gold)
+     survives both themes and both card fills, where a flat outline does not. */
+  --sds-focus-ring: 0 0 0 2px var(--sds-paper), 0 0 0 4px var(--sds-gold);
+}
+
+[data-sds-theme='dark'] {
+  --sds-paper: #16150f;
+  --sds-paper-2: #1d1c13;
+  --sds-card: #201f16;
+
+  --sds-ink: #ede7d8;
+  /* the 4-step ramp inverted — steps toward the ground rather than away from it */
+  --sds-ink-2: #d5cfc0;
+  --sds-ink-3: #a49d8c;
+  --sds-ink-4: #8b8677;
+  --sds-muted: rgba(237, 231, 216, 0.55);
+
+  --sds-gold: #e9be2e;
+  --sds-moss: #8b9a85;
+  --sds-lake: #a9bcc6;
+  --sds-stone: #8b8677;
+  --sds-deepmoss: #aebba7;
+  --sds-mist: #23241c;
+
+  --sds-on-gold: #16150f;
+  --sds-on-deepmoss: #16150f;
+
+  --sds-line: rgba(237, 231, 216, 0.14);
+  --sds-line-strong: rgba(237, 231, 216, 0.28);
+  --sds-shadow-float: 0 14px 34px rgba(0, 0, 0, 0.4);
+
+  /* The gold wash had no dark value, so dark reused light gold at 22% over
+     #16150f and composited to #443a16 — a muddy olive. That wash carries seven
+     jobs, including the audio-mode current-block marker that EssayPage.css
+     calls "the one gold event on the page".
+
+     Matching the light wash's 1.13:1 lift would need ~0.05 alpha here and be
+     invisible; on a dark ground the target is conspicuousness, not ratio. 0.16
+     lifts 1.39:1 and keeps ink at 10.6:1. Tune the alpha, not the hue. */
+  --sds-highlight-wash: rgba(233, 190, 46, 0.16);
+  --sds-selection: rgba(233, 190, 46, 0.26);
+}

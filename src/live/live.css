@@ -1,0 +1,3774 @@
+/*
+ * Surprisal Live Kit — /live (phone) and /live/host (editor + presenter). Colours, fonts and timing come from the
+ * --sds-* tokens in src/styles/theme.css. Zero radius; the accent (--sds-gold) marks the one thing that matters on a screen (the leading bar, the right answer, the
+ * top word), never a fill bigger than a button.
+ */
+
+.lv,
+.lv * {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  background: var(--sds-paper);
+}
+.lv {
+  min-height: 100dvh;
+  background: var(--sds-paper);
+  color: var(--sds-ink);
+  font-family: var(--sds-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+.lv ::selection {
+  background: var(--sds-selection);
+}
+.lv button,
+.lv input,
+.lv textarea,
+.lv select {
+  font: inherit;
+  color: inherit;
+  border-radius: 0;
+}
+.lv button {
+  cursor: pointer;
+}
+.lv :where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: var(--sds-focus-ring);
+}
+.lv a {
+  color: inherit;
+}
+
+/* ---------------------------------------------------------------- type */
+
+.lv-eyebrow {
+  font-family: var(--sds-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lv-eyebrow::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--sds-gold);
+  flex: none;
+}
+.lv-eyebrow.is-plain::before {
+  display: none;
+}
+.lv-title {
+  font-family: var(--sds-font-display);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-wrap: balance;
+}
+.lv-serif {
+  font-family: var(--sds-font-serif);
+}
+.lv-mono {
+  font-family: var(--sds-font-mono);
+}
+.lv-muted {
+  color: var(--sds-ink-3);
+}
+.lv-gold {
+  color: var(--sds-gold);
+}
+
+/* ---------------------------------------------------------------- controls */
+
+.lv-btn {
+  appearance: none;
+  text-decoration: none;
+  border: 1px solid var(--sds-line-strong);
+  background: transparent;
+  padding: 12px 18px;
+  min-height: 44px;
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition:
+    background var(--sds-dur-fast) var(--sds-ease),
+    border-color var(--sds-dur-fast) var(--sds-ease),
+    opacity var(--sds-dur-fast) var(--sds-ease);
+}
+.lv-btn:hover:not(:disabled) {
+  border-color: var(--sds-ink);
+}
+.lv-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.lv-btn.is-primary {
+  background: var(--sds-gold);
+  border-color: var(--sds-gold);
+  color: var(--sds-on-gold);
+  font-weight: 600;
+}
+.lv-btn.is-primary:hover:not(:disabled) {
+  border-color: var(--sds-ink);
+}
+.lv-btn.is-ink {
+  background: var(--sds-ink);
+  border-color: var(--sds-ink);
+  color: var(--sds-paper);
+}
+.lv-btn.is-quiet {
+  border-color: transparent;
+  padding-inline: 10px;
+}
+.lv-btn.is-quiet:hover:not(:disabled) {
+  border-color: var(--sds-line-strong);
+}
+.lv-btn.is-on {
+  border-color: var(--sds-gold);
+  box-shadow: inset 0 -3px 0 var(--sds-gold);
+}
+.lv-btn.is-small {
+  min-height: 34px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.lv-btn.is-block {
+  width: 100%;
+}
+
+.lv-field {
+  display: grid;
+  gap: 6px;
+}
+.lv-field > span {
+  font-family: var(--sds-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+}
+.lv-input {
+  width: 100%;
+  border: 1px solid var(--sds-line-strong);
+  background: var(--sds-card);
+  padding: 12px 14px;
+  font-size: 16px; /* 16px: iOS does not zoom */
+  min-height: 46px;
+}
+.lv-input:focus {
+  border-color: var(--sds-ink);
+  outline: none;
+}
+textarea.lv-input {
+  resize: vertical;
+  min-height: 96px;
+  line-height: 1.45;
+}
+.lv-input.is-code {
+  font-family: var(--sds-font-mono);
+  font-size: 34px;
+  letter-spacing: 0.4em;
+  text-align: center;
+  text-transform: uppercase;
+  padding-left: calc(14px + 0.4em);
+}
+
+/* ---------------------------------------------------------------- chart tokens
+ *
+ * Every chart is one series in the de-emphasis mark colour, with gold for the one thing that matters. The
+ * agree/disagree scale is the only multi-colour chart: a diverging ramp on the brand's lake (disagree) and gold
+ * (agree) hues with a neutral middle. Lake itself (chroma 0.025) reads as grey next to the neutral, so the steps are
+ * OKLCH steps on lake's hue (230.5°) and gold's (88.4°), validated 23 Oct with the dataviz validate_palette.js:
+ * each arm monotone and single-hue; adjacent ΔE ≥ 16.5 under protan/deutan and ≥ 17.1 with normal vision in both
+ * modes. The light weak-agree step is gold itself at 1.72:1 on paper (the brand's accepted gold), so every segment
+ * also carries a direct label, a legend and a table twin. Light: extremes darken. Dark: extremes lighten.
+ */
+:root {
+  /* The de-emphasis grey sits halfway between ink-4 and paper on light, so the gold leader (1.72:1, light) is the
+     loudest mark, not the greys around it. */
+  --lv-mark: color-mix(in oklab, var(--sds-ink-4) 55%, var(--sds-paper));
+  --lv-mark-strong: var(--sds-ink-4);
+  --lv-track: var(--sds-line);
+  /* Round 3 (24 Oct): deeper on light, so every segment shows on paper. Against #f4f0e8: 7.32 / 4.78 / 3.46 / 3.30 /
+     6.00 to 1 (round 2: 5.18 / 2.32 / 1.65 / 1.72 / 3.22). Each segment's text: 8.32 / 5.43 / 4.80 / 5.03 / 6.82. */
+  --lv-div-1: #15546e; /* strongly disagree: oklch(0.42 0.075 230.5), white text */
+  --lv-div-2: #3a708a; /* disagree:          oklch(0.52 0.070 230.5), white text */
+  --lv-div-3: #848078; /* neutral:           oklch(0.60 0.012 82.8), stone's hue, ink text */
+  --lv-div-4: #a37f03; /* agree:             oklch(0.615 0.125 88.4), ink text */
+  --lv-div-5: #725700; /* strongly agree:    oklch(0.47 0.100 88.4), white text */
+  --lv-div-1-ink: #ffffff;
+  --lv-div-2-ink: #ffffff;
+  --lv-div-3-ink: var(--sds-ink);
+  --lv-div-4-ink: var(--sds-ink);
+  --lv-div-5-ink: #ffffff;
+  --lv-div-ink: var(--sds-ink);
+}
+[data-sds-theme='dark'] {
+  --lv-mark: color-mix(in oklab, var(--sds-ink-4) 80%, var(--sds-paper));
+  --lv-mark-strong: var(--sds-ink-3);
+  /* Round 2 (24 Oct): the old neutral (oklch 0.40) and weak disagree (0.60) sank into the dark stage at 1.98:1.
+     Every step now reads on #16150f: 11.3 / 7.0 / 4.6 / 7.3 / 12.3 to 1, darkest (neutral) 4.6:1. */
+  --lv-div-1: #a3d2eb; /* oklch(0.84 0.060 230.5) */
+  --lv-div-2: #70a7c2; /* oklch(0.70 0.070 230.5) */
+  --lv-div-3: #848078; /* oklch(0.60 0.012 82.8) */
+  --lv-div-4: #c3a040; /* oklch(0.72 0.120 88.4) */
+  --lv-div-5: #facf5c; /* oklch(0.87 0.140 88.4) */
+  --lv-div-1-ink: #16150f;
+  --lv-div-2-ink: #16150f;
+  --lv-div-3-ink: #16150f;
+  --lv-div-4-ink: #16150f;
+  --lv-div-5-ink: #16150f;
+  --lv-div-ink: #16150f;
+}
+
+.lv-sr {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.lv-fig {
+  margin: 0;
+  width: 100%;
+  min-width: 0;
+  position: relative;
+}
+.lv-fig > div[aria-hidden] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.7em;
+}
+.lv-hist-plot,
+.lv-grid-plot,
+.lv-cloud {
+  min-width: 0;
+}
+.lv-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.5em);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+}
+.lv-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.lv-key {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+.lv-key.is-bar {
+  background: var(--lv-mark);
+}
+.lv-key.is-tick {
+  width: 3px;
+  height: 14px;
+  background: var(--sds-ink);
+}
+.lv-key.is-div-1 { background: var(--lv-div-1); }
+.lv-key.is-div-2 { background: var(--lv-div-2); }
+.lv-key.is-div-3 { background: var(--lv-div-3); }
+.lv-key.is-div-4 { background: var(--lv-div-4); }
+.lv-key.is-div-5 { background: var(--lv-div-5); }
+.lv-footnote {
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.48em);
+  color: var(--sds-ink-4);
+  letter-spacing: 0.04em;
+}
+
+/* ---------------------------------------------------------------- results: bars */
+
+.lv-bars {
+  display: grid;
+  gap: clamp(10px, 1.6vh, 18px);
+  width: 100%;
+}
+.lv-bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 6px;
+}
+.lv-bar-mark {
+  font-family: var(--sds-font-mono);
+  font-size: 0.8em;
+  min-width: 1.9em;
+  height: 1.9em;
+  padding: 0 0.3em;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--sds-line-strong);
+  color: var(--sds-ink-3);
+}
+.lv-bar-label {
+  font-size: 1em;
+  line-height: 1.25;
+  min-width: 0;
+}
+.lv-bar-figure {
+  font-family: var(--sds-font-mono);
+  font-size: 0.8em;
+  color: var(--sds-ink-2);
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.lv-delta {
+  color: var(--sds-ink-3);
+}
+/* The bar: at most 24px thick, a hairline-quiet track, one baseline. */
+.lv-bar-track {
+  grid-column: 1 / -1;
+  height: clamp(8px, 1.5vh, 18px);
+  background: var(--lv-track);
+  position: relative;
+}
+.lv-bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--lv-mark);
+  /* length: driven frame by frame by the race (race.ts); only the gold fades in, at impact */
+  transition: background-color 180ms var(--sds-ease-emphatic);
+}
+/* Before: a tick where the bar was, in ink, 3px wide, a little taller than the bar. */
+.lv-bar-prev {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 3px;
+  margin-left: -1.5px;
+  background: var(--sds-ink);
+  box-shadow: 0 0 0 2px var(--sds-paper);
+  transition: left var(--sds-dur-slow) var(--sds-ease-emphatic);
+}
+.lv-bar.is-lead .lv-bar-fill,
+.lv-bar.is-correct .lv-bar-fill {
+  background: var(--sds-gold);
+}
+.lv-bar.is-lead .lv-bar-mark,
+.lv-bar.is-correct .lv-bar-mark {
+  border-color: var(--sds-gold);
+  color: var(--sds-ink);
+  background: var(--sds-highlight-wash);
+}
+.lv-bar.is-wrong {
+  opacity: 0.45;
+}
+
+/* columns */
+.lv-columns {
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  gap: clamp(8px, 2vw, 32px);
+  align-items: end;
+  width: 100%;
+}
+.lv-column {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+}
+.lv-column-plot {
+  height: max(140px, 30vh);
+  width: min(100%, 120px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid var(--sds-line-strong);
+}
+.lv-column-cap {
+  font-family: var(--sds-font-mono);
+  font-size: 0.8em;
+  color: var(--sds-ink-2);
+}
+.lv-column-fill {
+  width: min(100%, 24px * 3);
+  background: var(--lv-mark);
+  transition: background-color 180ms var(--sds-ease-emphatic);
+}
+.lv-column.is-lead .lv-column-fill,
+.lv-column.is-correct .lv-column-fill {
+  background: var(--sds-gold);
+}
+.lv-column.is-lead .lv-bar-mark {
+  border-color: var(--sds-gold);
+  background: var(--sds-highlight-wash);
+  color: var(--sds-ink);
+}
+.lv-column-label {
+  font-size: 0.8em;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+/* donut */
+.lv-donut {
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 4vw, 72px);
+  flex-wrap: wrap;
+}
+.lv-donut svg {
+  flex: none;
+  overflow: visible;
+}
+.lv-donut-track {
+  stroke: var(--lv-track);
+}
+.lv-donut-slice,
+.lv-donut-arc {
+  fill: var(--lv-mark);
+  /* the sweep draws the slices frame by frame (race.ts level); a transition on d would lag it */
+}
+.lv-donut-arc {
+  fill: none;
+  stroke: var(--lv-mark);
+}
+.lv-donut-slice.is-lead {
+  fill: var(--sds-gold);
+}
+.lv-donut-arc.is-lead {
+  stroke: var(--sds-gold);
+}
+.lv-donut-letter {
+  font-family: var(--sds-font-mono);
+  font-size: 0.6em;
+  fill: var(--sds-paper);
+}
+.lv-donut-letter.is-lead {
+  fill: var(--sds-on-gold);
+}
+.lv-donut-total {
+  font-family: var(--sds-font-sans);
+  font-size: 1.6em;
+  font-weight: 600;
+  fill: var(--sds-ink);
+}
+.lv-donut-unit {
+  font-family: var(--sds-font-mono);
+  font-size: 0.5em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--sds-ink-3);
+}
+.lv-donut-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  flex: 1 1 260px;
+}
+.lv-donut-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+.lv-donut-legend li.is-lead .lv-bar-mark {
+  border-color: var(--sds-gold);
+  background: var(--sds-highlight-wash);
+  color: var(--sds-ink);
+}
+
+/* typed quiz */
+.lv-typed-hero {
+  display: flex;
+  align-items: end;
+  gap: 18px;
+}
+.lv-typed-hero b {
+  color: var(--sds-ink);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- results: words */
+
+.lv-cloud {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+.lv-word {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--sds-font-display);
+  font-weight: 500;
+  line-height: 1.02;
+  white-space: nowrap;
+  color: var(--sds-ink);
+  transition:
+    transform var(--sds-dur-slow) var(--sds-ease-emphatic),
+    font-size var(--sds-dur-slow) var(--sds-ease-emphatic),
+    opacity var(--sds-dur-base) var(--sds-ease);
+  animation: lv-fade var(--sds-dur-slow) var(--sds-ease) both;
+}
+/* The most said word. On paper, deep gold is 1.78:1 as text, so it gets the house highlight (a gold wash behind ink);
+   on dark, gold text reads well and is the event. */
+/* The highlight rides on the inner span, which carries the cursor's physics (cloudPhysics.ts). */
+.lv-word-in {
+  display: inline-block;
+  will-change: transform;
+}
+.lv-word.is-top .lv-word-in {
+  background: linear-gradient(transparent 58%, var(--sds-highlight-wash) 58%, var(--sds-highlight-wash) 92%, transparent 92%);
+}
+[data-sds-theme='dark'] .lv-word.is-top {
+  color: var(--sds-gold);
+}
+[data-sds-theme='dark'] .lv-word.is-top .lv-word-in {
+  background: none;
+}
+.lv-cloud .lv-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+/* ---------------------------------------------------------------- results: wall */
+
+.lv-wall {
+  columns: 3 280px;
+  column-gap: 16px;
+  width: 100%;
+}
+.lv-wall-more {
+  column-span: all;
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.5em);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+  margin-bottom: 12px;
+}
+.lv-note {
+  break-inside: avoid;
+  margin: 0 0 16px;
+  padding: 18px 20px;
+  background: var(--sds-card);
+  border: 1px solid var(--sds-line);
+  position: relative;
+  animation: lv-in var(--sds-dur-slow) var(--sds-ease-emphatic) both;
+}
+.lv-note p {
+  margin: 0;
+  font-family: var(--sds-font-serif);
+  font-size: 1em;
+  line-height: 1.4;
+}
+.lv-note:first-child {
+  border-left: 3px solid var(--sds-gold);
+}
+.lv-note-actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity var(--sds-dur-fast) var(--sds-ease);
+}
+.lv-note:hover .lv-note-actions,
+.lv-note:focus-within .lv-note-actions {
+  opacity: 1;
+}
+.lv-note-actions .lv-btn {
+  background: var(--sds-paper);
+}
+.lv-spotlight {
+  max-width: 28ch;
+  font-family: var(--sds-font-serif);
+  font-size: clamp(32px, 4.4vw, 80px);
+  line-height: 1.2;
+  margin: 0;
+  text-align: center;
+  text-wrap: balance;
+}
+.lv-spotlight::before {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 4px;
+  background: var(--sds-gold);
+  margin: 0 auto 0.6em;
+}
+
+/* ---------------------------------------------------------------- results: scales */
+
+.lv-fig.lv-rating > div[aria-hidden] {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(20px, 4vw, 64px);
+  align-items: end;
+}
+.lv-rating-hero {
+  display: grid;
+  gap: 4px;
+}
+/* The hero figure: the same sans as everything else, proportional figures. */
+.lv-hero-figure {
+  font-family: var(--sds-font-sans);
+  font-weight: 600;
+  font-size: 3.4em;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+}
+.lv-hero-unit {
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.5em);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+  line-height: 1.5;
+}
+.lv-rating-plot {
+  display: grid;
+  gap: 8px;
+}
+.lv-cols {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2px;
+  align-items: end;
+  height: max(110px, 22vh);
+}
+.lv-col {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+}
+.lv-col-cap {
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.55em);
+  color: var(--sds-ink-2);
+  min-height: 1.2em;
+}
+.lv-col-fill {
+  width: min(100%, 72px);
+  background: var(--lv-mark);
+  min-height: 1px;
+  transition: background-color 180ms var(--sds-ease-emphatic);
+}
+.lv-col.is-lead .lv-col-fill {
+  background: var(--lv-mark-strong);
+}
+.lv-axis {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  border-top: 1px solid var(--sds-line-strong);
+  padding-top: 10px;
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.55em);
+  color: var(--sds-ink-3);
+  text-align: center;
+}
+/* The average: a gold marker on the axis; before, a hollow ink one. */
+.lv-axis-marker {
+  position: absolute;
+  top: -9px;
+  width: 0;
+  height: 0;
+  margin-left: -9px;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 12px solid var(--sds-gold);
+  transition: left var(--sds-dur-slow) var(--sds-ease-emphatic);
+}
+.lv-axis-marker.is-prev {
+  border-bottom-color: var(--sds-ink-3);
+}
+.lv-scale-ends {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.5em);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+}
+
+/* agree / disagree: one diverging stacked bar, centred on neutral */
+.lv-div-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.lv-div-label {
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.5em);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+  width: 4.5em;
+  flex: none;
+}
+/* Segments are separated by a 2px surface gap (box-shadow in the paper colour), never a border. */
+.lv-div-seg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.55em);
+  color: var(--lv-div-ink);
+  box-shadow: inset 1px 0 0 var(--sds-paper), inset -1px 0 0 var(--sds-paper);
+  transition:
+    left var(--sds-dur-slow) var(--sds-ease-emphatic),
+    width var(--sds-dur-slow) var(--sds-ease-emphatic);
+  white-space: nowrap;
+}
+.lv-div-seg.is-1 { background: var(--lv-div-1); color: var(--lv-div-1-ink); }
+.lv-div-seg.is-2 { background: var(--lv-div-2); color: var(--lv-div-2-ink); }
+.lv-div-seg.is-3 { background: var(--lv-div-3); color: var(--lv-div-3-ink); }
+.lv-div-seg.is-4 { background: var(--lv-div-4); color: var(--lv-div-4-ink); }
+.lv-div-seg.is-5 { background: var(--lv-div-5); color: var(--lv-div-5-ink); }
+
+/* ---------------------------------------------------------------- results: prediction */
+
+.lv-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px clamp(20px, 3vw, 48px);
+}
+.lv-stat {
+  display: grid;
+  gap: 2px;
+}
+.lv-stat span {
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.48em);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+}
+.lv-stat b {
+  font-family: var(--sds-font-sans);
+  font-weight: 600;
+  font-size: 1.3em;
+  line-height: 1.1;
+}
+.lv-stat.is-gold b {
+  box-shadow: inset 0 -0.32em 0 var(--sds-highlight-wash);
+  justify-self: start;
+}
+.lv-hist-plot,
+.lv-grid-plot {
+  width: 100%;
+}
+.lv-hist-plot svg,
+.lv-grid-plot svg {
+  display: block;
+  overflow: visible;
+}
+.lv-hist-col {
+  fill: var(--lv-mark);
+  /* y and height are drawn frame by frame by the race: a transition on them smeared it by 500 ms (fixed 24 Oct) */
+}
+.lv-hist-col.is-tall {
+  fill: var(--lv-mark-strong);
+}
+.lv-hist-ring {
+  stroke: var(--sds-paper);
+  stroke-width: 6;
+}
+.lv-hist-ring.is-truth {
+  stroke-width: 8;
+}
+.lv-hist-base {
+  stroke: var(--sds-line-strong);
+  stroke-width: 1;
+}
+.lv-hist-tick,
+.lv-hist-cap {
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.5em);
+  fill: var(--sds-ink-3);
+}
+.lv-hist-cap {
+  fill: var(--sds-ink-2);
+}
+.lv-hist-median {
+  stroke: var(--sds-ink);
+  stroke-width: 2;
+}
+.lv-hist-truth {
+  stroke: var(--sds-gold);
+  stroke-width: 4;
+}
+.lv-hist-label {
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.52em);
+  letter-spacing: 0.04em;
+  fill: var(--sds-ink-2);
+}
+.lv-hist-label.is-truth {
+  fill: var(--sds-ink);
+  font-weight: 600;
+  animation: lv-fade var(--sds-dur-base) var(--sds-ease) 1s both;
+}
+@keyframes lv-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+}
+@keyframes lv-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------------- results: 2×2 */
+
+.lv-grid-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px clamp(24px, 4vw, 72px);
+}
+.lv-grid-wrap .lv-grid-plot {
+  flex: 1 1 280px;
+}
+.lv-grid-wrap.is-fit .lv-grid-plot {
+  flex: 0 1 auto;
+  width: min(100%, calc(46vh + 3em));
+}
+.lv-grid-tally {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+  flex: 1 1 240px;
+  font-size: 0.8em;
+}
+.lv-grid-tally li {
+  display: grid;
+  grid-template-columns: 2.4em 1fr;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--sds-line);
+}
+.lv-grid-tally-n {
+  font-family: var(--sds-font-sans);
+  font-weight: 600;
+  font-size: 1.6em;
+  line-height: 1;
+}
+.lv-grid-tally small {
+  font-family: var(--sds-font-mono);
+  color: var(--sds-ink-3);
+  font-size: 0.75em;
+}
+.lv-grid-tally li.is-lead .lv-grid-tally-n {
+  box-shadow: inset 0 -0.3em 0 var(--sds-highlight-wash);
+}
+
+.lv-grid-plot svg.is-pickable {
+  cursor: crosshair;
+  touch-action: none;
+}
+.lv-grid-frame {
+  fill: var(--sds-card);
+  stroke: var(--sds-line-strong);
+}
+.lv-grid-axis {
+  stroke: var(--sds-line-strong);
+}
+.lv-grid-quad {
+  font-family: var(--sds-font-mono);
+  font-size: max(10px, 0.45em);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--sds-ink-4);
+}
+/* Dots: the mark colour with a 2px surface ring, so overlaps stay countable. */
+.lv-grid-dot {
+  fill: var(--sds-ink-3);
+  fill-opacity: 0.75;
+  stroke: var(--sds-card);
+  stroke-width: 2;
+  animation: lv-fade var(--sds-dur-base) var(--sds-ease) both;
+}
+.lv-grid-mine {
+  fill: var(--sds-gold);
+  stroke: var(--sds-ink);
+  stroke-width: 2;
+}
+.lv-grid-mean {
+  fill: var(--sds-gold);
+  stroke: var(--sds-ink);
+  stroke-width: 1.5;
+  transition:
+    x var(--sds-dur-slow) var(--sds-ease-emphatic),
+    y var(--sds-dur-slow) var(--sds-ease-emphatic);
+}
+.lv-grid-meanlabel {
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.5em);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--sds-ink);
+  paint-order: stroke;
+  stroke: var(--sds-card);
+  stroke-width: 4px;
+}
+.lv-grid-label {
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.5em);
+  letter-spacing: 0.04em;
+  fill: var(--sds-ink-2);
+}
+
+/* ---------------------------------------------------------------- results: Q&A */
+
+.lv-qa {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  width: 100%;
+  border-top: 1px solid var(--sds-line);
+}
+.lv-qa li {
+  display: grid;
+  grid-template-columns: 3.2em 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--sds-line);
+  animation: lv-in var(--sds-dur-slow) var(--sds-ease-emphatic) both;
+}
+.lv-qa-votes {
+  font-family: var(--sds-font-mono);
+  text-align: center;
+  font-size: 0.5em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+}
+.lv-qa-votes b {
+  display: block;
+  font-size: 2.6em;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--sds-ink);
+}
+.lv-qa li:first-child:not(.is-answered) .lv-qa-votes b {
+  color: var(--sds-gold);
+}
+.lv-qa-text {
+  font-family: var(--sds-font-serif);
+  line-height: 1.35;
+}
+.lv-qa li.is-answered .lv-qa-text {
+  color: var(--sds-ink-4);
+  text-decoration: line-through;
+  text-decoration-color: var(--sds-line-strong);
+}
+.lv-qa-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* ---------------------------------------------------------------- results: board + podium */
+
+.lv-board {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  border-top: 1px solid var(--sds-line);
+  counter-reset: rank;
+}
+.lv-board li {
+  counter-increment: rank;
+  display: grid;
+  grid-template-columns: 2.4em 1fr auto;
+  gap: 14px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--sds-line);
+  animation: lv-in var(--sds-dur-slow) var(--sds-ease-emphatic) both;
+}
+.lv-board li::before {
+  content: counter(rank, decimal-leading-zero);
+  font-family: var(--sds-font-mono);
+  color: var(--sds-ink-3);
+}
+.lv-board li:first-child::before {
+  color: var(--sds-gold);
+}
+.lv-board-score {
+  font-family: var(--sds-font-mono);
+}
+
+.lv-podium {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+  gap: clamp(10px, 2vw, 28px);
+  width: 100%;
+  max-width: 900px;
+  margin-inline: auto;
+}
+.lv-step {
+  display: grid;
+  gap: 10px;
+  text-align: center;
+}
+.lv-step-name {
+  font-family: var(--sds-font-display);
+  font-size: 1.1em;
+  overflow-wrap: anywhere;
+}
+.lv-step-score {
+  font-family: var(--sds-font-mono);
+  font-size: 0.7em;
+  color: var(--sds-ink-3);
+}
+.lv-step-block {
+  border: 1px solid var(--sds-line-strong);
+  border-bottom: 0;
+  background: var(--sds-card);
+  display: grid;
+  place-items: start center;
+  padding-top: 0.4em;
+  font-family: var(--sds-font-display);
+  font-size: 2em;
+  color: var(--sds-ink-3);
+}
+.lv-step.is-1 .lv-step-block {
+  border-top: 4px solid var(--sds-gold);
+  color: var(--sds-gold);
+}
+.lv-step.is-1 {
+  animation-delay: 0.5s;
+}
+.lv-step.is-2 {
+  animation-delay: 0.25s;
+}
+
+.lv-empty {
+  font-family: var(--sds-font-mono);
+  font-size: 0.7em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sds-ink-4);
+  padding: 1em 0;
+}
+
+@keyframes lv-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes lv-rise {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+}
+
+/* ---------------------------------------------------------------- presenter */
+
+.lv-stage {
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
+  position: relative;
+}
+.lv-stage-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: clamp(14px, 2.4vh, 28px) clamp(20px, 3.4vw, 56px);
+  border-bottom: 1px solid var(--sds-line);
+}
+.lv-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--sds-font-mono);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  min-width: 0;
+}
+.lv-brand img {
+  height: 18px;
+  width: auto;
+}
+/* A one-colour logo turns white on dark. A colour logo: set --brand-logo-dark-filter to none in theme.css. */
+[data-sds-theme='dark'] .lv-brand img {
+  filter: var(--brand-logo-dark-filter, brightness(0) invert(1));
+}
+.lv-brand span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--sds-ink-3);
+}
+.lv-joinline {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--sds-font-mono);
+  font-size: clamp(13px, 1.3vw, 18px);
+  white-space: nowrap;
+}
+.lv-joinline b {
+  font-weight: 500;
+  font-size: 1.5em;
+  letter-spacing: 0.18em;
+  border-bottom: 3px solid var(--sds-gold);
+  line-height: 1.1;
+}
+.lv-joinline .lv-qr {
+  width: 52px;
+  height: 52px;
+}
+.lv-stage-main {
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  padding: clamp(24px, 5vh, 72px) clamp(20px, 6vw, 120px);
+  display: grid;
+  /* safe: when a slide is taller than the stage it starts at the top instead of losing its title above the fold */
+  align-content: safe center;
+  gap: clamp(20px, 4vh, 48px);
+  font-size: clamp(16px, 1.75vw, 30px);
+  overflow: auto;
+}
+.lv-stage-main .lv-title {
+  font-size: clamp(32px, 4.6vw, 84px);
+  max-width: 22ch;
+}
+.lv-stage-main .lv-title.is-content {
+  font-size: clamp(40px, 6.4vw, 120px);
+  max-width: 18ch;
+}
+.lv-stage-main .lv-body {
+  font-family: var(--sds-font-serif);
+  font-size: clamp(18px, 2vw, 34px);
+  line-height: 1.4;
+  color: var(--sds-ink-2);
+  max-width: 40ch;
+  margin: 0;
+  white-space: pre-line;
+}
+.lv-stage-main .lv-cloud {
+  min-height: 30vh;
+  align-content: center;
+}
+.lv-stage-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px clamp(20px, 3.4vw, 56px);
+  border-top: 1px solid var(--sds-line);
+  font-family: var(--sds-font-mono);
+  font-size: 13px;
+  color: var(--sds-ink-3);
+  flex-wrap: wrap;
+}
+.lv-stage-stats {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+}
+.lv-stage-stats b {
+  color: var(--sds-ink);
+  font-weight: 500;
+}
+.lv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  transition: opacity var(--sds-dur-base) var(--sds-ease);
+}
+.lv-stage.is-idle .lv-controls,
+.lv-stage.is-idle .lv-qa-actions {
+  opacity: 0;
+}
+.lv-qa-actions {
+  transition: opacity var(--sds-dur-base) var(--sds-ease);
+}
+.lv-stage.is-idle {
+  cursor: none;
+}
+
+.lv-timer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background: var(--sds-gold);
+  transition: width 0.1s linear;
+}
+.lv-count {
+  font-family: var(--sds-font-display);
+  font-size: clamp(56px, 8vw, 140px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.lv-count.is-low {
+  color: var(--sds-gold);
+}
+.lv-timesup {
+  font-family: var(--sds-font-mono);
+  font-size: 0.22em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+}
+/* the quiz lead-in: 3, 2, 1 */
+.lv-lead {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+.lv-lead-n {
+  font-family: var(--sds-font-display);
+  font-size: clamp(120px, 18vw, 280px);
+  line-height: 0.9;
+  color: var(--sds-gold);
+  animation: lv-pop 900ms var(--sds-ease-emphatic) both;
+}
+@keyframes lv-pop {
+  0% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+  25% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(0.96);
+  }
+}
+.lv-slide-img {
+  max-height: 22vh;
+  max-width: 32%;
+  object-fit: contain;
+  border: 1px solid var(--sds-line);
+  background: var(--sds-card);
+}
+.lv-slide-img.is-big {
+  max-height: 56vh;
+  max-width: 100%;
+}
+.lv-content-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 72px);
+  align-items: center;
+}
+.lv-content-solo {
+  display: grid;
+}
+.lv-titlerow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 32px;
+}
+
+/* the lobby: who has joined, on the doors-open slide */
+.lv-lobby {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  font-size: 0.7em;
+}
+.lv-lobby span {
+  padding: 4px 10px;
+  border: 1px solid var(--sds-line-strong);
+  animation: lv-in var(--sds-dur-slow) var(--sds-ease-emphatic) both;
+}
+
+/* the big join card, first slide or J */
+.lv-joincard {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: clamp(24px, 4vw, 64px);
+  align-items: center;
+}
+.lv-joincard .lv-qr {
+  width: clamp(160px, 22vh, 280px);
+  height: clamp(160px, 22vh, 280px);
+}
+.lv-joincard-code {
+  font-family: var(--sds-font-mono);
+  font-size: clamp(48px, 8vw, 132px);
+  letter-spacing: 0.16em;
+  line-height: 1;
+}
+.lv-joincard-url {
+  font-family: var(--sds-font-mono);
+  font-size: clamp(16px, 1.8vw, 28px);
+  color: var(--sds-ink-3);
+  margin-top: 0.6em;
+}
+.lv-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--sds-paper);
+  display: grid;
+  place-items: center;
+  z-index: 5;
+  padding: 24px;
+  animation: lv-in var(--sds-dur-base) var(--sds-ease) both;
+}
+
+/* Dark modules on a light ground in both themes: many phone cameras do not read an inverted code. */
+.lv-qr-ground {
+  fill: var(--sds-card);
+}
+.lv-qr {
+  color: var(--sds-ink);
+  flex: none;
+}
+[data-sds-theme='dark'] .lv-qr-ground {
+  fill: var(--sds-ink);
+}
+[data-sds-theme='dark'] .lv-qr {
+  color: var(--sds-paper);
+}
+
+/* reactions rise up the right edge as in a video call: the outer span rises and fades, the inner one pops and sways.
+   Separate properties (translate, scale) so the three motions never overwrite each other. */
+.lv-reactions {
+  position: absolute;
+  right: clamp(16px, 3vw, 56px);
+  bottom: 76px;
+  width: 300px;
+  height: 72vh;
+  pointer-events: none;
+  z-index: 4;
+}
+.lv-reaction {
+  position: absolute;
+  bottom: 0;
+  line-height: 1;
+  opacity: 0;
+  will-change: translate, opacity;
+  animation: lv-rise var(--rise, 4200ms) cubic-bezier(0.3, 0.1, 0.45, 1) var(--d, 0ms) both;
+}
+.lv-reaction > span {
+  display: block;
+  will-change: translate, scale;
+  animation:
+    lv-pop 520ms var(--sds-ease-emphatic) var(--d, 0ms) both,
+    lv-sway 1300ms ease-in-out var(--d, 0ms) infinite alternate both;
+}
+@keyframes lv-rise {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  7% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    translate: 0 -64vh;
+  }
+}
+@keyframes lv-pop {
+  0% {
+    scale: 0.2;
+  }
+  55% {
+    scale: 1.18;
+  }
+  100% {
+    scale: 1;
+  }
+}
+@keyframes lv-sway {
+  from {
+    translate: calc(var(--sway, 12px) * -1) 0;
+  }
+  to {
+    translate: var(--sway, 12px) 0;
+  }
+}
+
+/* ---------------------------------------------------------------- phone */
+
+.lv-phone {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 560px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 0 16px;
+}
+.lv-phone-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--sds-line);
+  font-family: var(--sds-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--sds-ink-3);
+  gap: 12px;
+}
+.lv-phone-top b {
+  color: var(--sds-ink);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+}
+.lv-phone-main {
+  padding: 28px 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 22px;
+  font-size: 17px;
+}
+.lv-joinform {
+  display: grid;
+  gap: 22px;
+}
+.lv-phone-main .lv-title {
+  font-size: clamp(26px, 7.4vw, 36px);
+}
+.lv-phone-bottom {
+  border-top: 1px solid var(--sds-line);
+  padding: 10px 0 max(12px, env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  position: sticky;
+  bottom: 0;
+  background: var(--sds-paper);
+}
+.lv-rx {
+  display: flex;
+  gap: 2px;
+}
+.lv-rx button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font-size: 24px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  transition: transform var(--sds-dur-fast) var(--sds-ease);
+}
+.lv-rx button:active {
+  transform: scale(1.3);
+}
+
+.lv-choices {
+  display: grid;
+  gap: 10px;
+}
+.lv-choice {
+  appearance: none;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: center;
+  text-align: left;
+  width: 100%;
+  min-height: 60px;
+  padding: 14px 16px;
+  background: var(--sds-card);
+  border: 1px solid var(--sds-line-strong);
+  font-size: 17px;
+  line-height: 1.3;
+  transition:
+    border-color var(--sds-dur-fast) var(--sds-ease),
+    background var(--sds-dur-fast) var(--sds-ease),
+    transform var(--sds-dur-fast) var(--sds-ease);
+}
+.lv-choice:active:not(:disabled) {
+  transform: scale(0.985);
+}
+.lv-choice:disabled {
+  cursor: default;
+}
+.lv-choice .lv-bar-mark {
+  font-size: 13px;
+}
+.lv-choice.is-picked {
+  border-color: var(--sds-gold);
+  background: var(--sds-highlight-wash);
+}
+.lv-choice.is-picked .lv-bar-mark {
+  background: var(--sds-gold);
+  border-color: var(--sds-gold);
+  color: var(--sds-on-gold);
+}
+.lv-choice.is-dim {
+  opacity: 0.4;
+}
+.lv-choices.is-quiz {
+  grid-template-columns: 1fr 1fr;
+}
+.lv-choices.is-quiz .lv-choice {
+  grid-template-columns: 1fr;
+  align-content: space-between;
+  min-height: 132px;
+  font-size: 16px;
+}
+.lv-choices.is-quiz .lv-bar-mark {
+  font-size: 18px;
+}
+
+.lv-scalepick {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 4px;
+}
+.lv-scalepick button {
+  appearance: none;
+  min-height: 56px;
+  border: 1px solid var(--sds-line-strong);
+  background: var(--sds-card);
+  font-family: var(--sds-font-mono);
+  font-size: 16px;
+  padding: 0;
+}
+.lv-scalepick button.is-picked {
+  background: var(--sds-gold);
+  border-color: var(--sds-gold);
+  color: var(--sds-on-gold);
+}
+
+.lv-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--sds-line);
+  background: var(--sds-card);
+  font-size: 15px;
+}
+.lv-status::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--sds-gold);
+  flex: none;
+}
+.lv-status.is-quiet::before {
+  background: var(--sds-ink-4);
+}
+.lv-big {
+  font-family: var(--sds-font-display);
+  font-size: 64px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.lv-center {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 16px;
+  padding-top: 6vh;
+}
+
+.lv-sheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 10;
+  background: var(--sds-paper);
+  border-top: 1px solid var(--sds-line-strong);
+  box-shadow: var(--sds-shadow-float);
+  padding: 20px 16px max(20px, env(safe-area-inset-bottom));
+  display: grid;
+  gap: 14px;
+  max-width: 560px;
+  margin: 0 auto;
+  animation: lv-rise var(--sds-dur-base) var(--sds-ease-emphatic) both;
+}
+
+.lv-votebtn {
+  appearance: none;
+  border: 1px solid var(--sds-line-strong);
+  background: transparent;
+  min-width: 52px;
+  min-height: 44px;
+  font-family: var(--sds-font-mono);
+  font-size: 14px;
+  display: grid;
+  place-items: center;
+  line-height: 1.1;
+}
+.lv-votebtn.is-on {
+  border-color: var(--sds-gold);
+  background: var(--sds-highlight-wash);
+}
+
+.lv-phone-results {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid var(--sds-line);
+  font-size: 15px;
+}
+.lv-choice.is-agree {
+  min-height: 52px;
+}
+.lv-choice.is-agree .lv-key {
+  width: 14px;
+  height: 14px;
+}
+.lv-ranklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.lv-ranklist li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 8px 8px 12px;
+  background: var(--sds-card);
+  border: 1px solid var(--sds-line-strong);
+}
+.lv-ranklist li:first-child {
+  border-color: var(--sds-gold);
+}
+.lv-ranklist .lv-bar-mark {
+  font-size: 13px;
+}
+.lv-rank-moves {
+  display: flex;
+  gap: 4px;
+}
+.lv-rank-moves .lv-btn {
+  min-width: 40px;
+  min-height: 40px;
+}
+.lv-points-left {
+  display: grid;
+  gap: 8px;
+  font-size: 15px;
+  color: var(--sds-ink-2);
+}
+.lv-points-left b {
+  font-family: var(--sds-font-sans);
+  font-size: 22px;
+  color: var(--sds-ink);
+}
+.lv-points-meter {
+  height: 6px;
+  background: var(--lv-track);
+  position: relative;
+}
+.lv-points-meter span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--sds-gold);
+  transition: width var(--sds-dur-base) var(--sds-ease);
+}
+.lv-pointrow {
+  display: grid;
+  grid-template-columns: 1fr 44px 64px 44px;
+  gap: 6px;
+  align-items: center;
+}
+.lv-pointrow-label {
+  font-size: 16px;
+  line-height: 1.3;
+}
+.lv-pointrow .lv-btn {
+  min-height: 44px;
+  padding: 0;
+  font-size: 20px;
+}
+.lv-pointrow-n {
+  text-align: center;
+  font-family: var(--sds-font-mono);
+  padding: 8px 4px;
+  min-height: 44px;
+}
+.lv-numberfield {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.lv-input.is-number {
+  font-family: var(--sds-font-sans);
+  font-size: 32px;
+  font-weight: 600;
+  min-height: 64px;
+}
+.lv-range {
+  width: 100%;
+  accent-color: var(--sds-gold);
+  min-height: 32px;
+}
+
+.lv-phone-img {
+  max-width: 100%;
+  max-height: 34vh;
+  object-fit: contain;
+  justify-self: start;
+  border: 1px solid var(--sds-line);
+}
+.lv-streak {
+  font-family: var(--sds-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sds-ink-2);
+  box-shadow: inset 0 -0.5em 0 var(--sds-highlight-wash);
+  justify-self: start;
+}
+.lv-paced-progress {
+  height: 4px;
+  background: var(--lv-track);
+  position: relative;
+}
+.lv-paced-progress i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--sds-gold);
+  transition: width var(--sds-dur-base) var(--sds-ease);
+}
+.lv-paced-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+/* ---------------------------------------------------------------- host: library + editor */
+
+.lv-host {
+  min-height: 100dvh;
+}
+.lv-hostbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px clamp(16px, 3vw, 40px);
+  border-bottom: 1px solid var(--sds-line);
+  position: sticky;
+  top: 0;
+  background: var(--sds-paper);
+  z-index: 3;
+  flex-wrap: wrap;
+}
+.lv-hostbar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.lv-library {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: clamp(32px, 6vh, 72px) 16px;
+  display: grid;
+  gap: 48px;
+}
+.lv-library h1.lv-title {
+  font-size: clamp(32px, 4.2vw, 48px);
+}
+.lv-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.lv-section {
+  display: grid;
+  gap: 16px;
+}
+/* A section's eyebrow, with its one quiet control on the right of the same line. */
+.lv-sectionhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+  min-height: 36px;
+}
+.lv-libstatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sds-font-mono);
+  font-size: 12px;
+  color: var(--sds-ink-3);
+}
+.lv-libstatus .lv-input {
+  width: 168px;
+  min-height: 34px;
+  padding: 4px 10px;
+  font-family: var(--sds-font-sans);
+  font-size: 14px;
+}
+.lv-libstatus .lv-btn {
+  font-family: var(--sds-font-sans);
+}
+.lv-libstatus-error {
+  color: var(--sds-ink);
+}
+.lv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+/* The library card (Host.tsx Tile): body on top, a one-line foot pinned to the bottom, so the feet line up across a
+   row. The go button's ::after covers the card: a click anywhere on it is the main action. */
+.lv-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--sds-card);
+  border: 1px solid var(--sds-line);
+  transition: border-color var(--sds-dur-fast) var(--sds-ease);
+}
+.lv-tile:has(.lv-tile-go):hover {
+  border-color: var(--sds-ink);
+}
+.lv-tile:has(.lv-tile-go:focus-visible) {
+  border-color: var(--sds-ink);
+  box-shadow: var(--sds-focus-ring);
+}
+.lv-tile-body {
+  flex: 1;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 20px 20px 18px;
+}
+.lv-tile h2 {
+  margin: 0;
+  font-family: var(--sds-font-display);
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.15;
+}
+.lv-tile p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--sds-ink-3);
+  line-height: 1.45;
+}
+/* A deck's slide list can run to a dozen kinds: two lines, the full list on hover. */
+.lv-tile p.lv-tile-kinds {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.lv-tile-meta {
+  font-family: var(--sds-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sds-ink-4);
+}
+.lv-tile-code {
+  font-family: var(--sds-font-mono);
+  font-size: 15px;
+  letter-spacing: 0.16em;
+  color: var(--sds-ink-2);
+}
+.lv-tile-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 8px 0 20px;
+  border-top: 1px solid var(--sds-line);
+  white-space: nowrap;
+}
+.lv-tile-go {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--sds-ink);
+}
+.lv-tile-go::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.lv .lv-tile-go:focus-visible {
+  box-shadow: none;
+}
+.lv-tile-arrow {
+  color: var(--sds-ink-3);
+  transition:
+    translate var(--sds-dur-fast) var(--sds-ease),
+    color var(--sds-dur-fast) var(--sds-ease);
+}
+.lv-tile:hover .lv-tile-arrow,
+.lv-tile:has(.lv-tile-go:focus-visible) .lv-tile-arrow {
+  translate: 4px 0;
+  color: var(--sds-gold);
+}
+/* Quiet actions sit above the card's cover, so they take their own clicks. */
+.lv-tile-more {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+}
+.lv-tile-more button {
+  appearance: none;
+  background: none;
+  border: 0;
+  min-height: 36px;
+  padding: 0 10px;
+  font-size: 13px;
+  color: var(--sds-ink-3);
+  transition: color var(--sds-dur-fast) var(--sds-ease);
+}
+.lv-tile-more button:hover {
+  color: var(--sds-ink);
+}
+.lv-tile-more button.is-strong {
+  color: var(--sds-ink);
+  box-shadow: inset 0 0 0 1px var(--sds-line-strong);
+}
+.lv-tile-ask {
+  width: 100%;
+  justify-content: space-between;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lv-tile-arrow {
+    transition: none;
+  }
+}
+
+.lv-editor {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) minmax(0, 1.2fr);
+  min-height: calc(100dvh - 73px);
+}
+.lv-rail {
+  border-right: 1px solid var(--sds-line);
+  padding: 16px;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  overflow: auto;
+  max-height: calc(100dvh - 73px);
+  position: sticky;
+  top: 73px;
+}
+.lv-railitem {
+  appearance: none;
+  display: grid;
+  grid-template-columns: 1.8em 1fr;
+  gap: 8px;
+  text-align: left;
+  padding: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 14px;
+  line-height: 1.3;
+}
+.lv-railitem:hover {
+  border-color: var(--sds-line-strong);
+}
+.lv-railitem.is-on {
+  border-color: var(--sds-ink);
+  background: var(--sds-card);
+}
+.lv-railitem .lv-mono {
+  font-size: 11px;
+  color: var(--sds-ink-4);
+  padding-top: 2px;
+}
+.lv-railitem small {
+  display: block;
+  font-family: var(--sds-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+  margin-bottom: 2px;
+}
+.lv-railitem span:last-child {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.lv-addgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sds-line);
+}
+.lv-form {
+  padding: 24px clamp(16px, 2.4vw, 32px);
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+.lv-optrow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+.lv-check {
+  appearance: none;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--sds-line-strong);
+  background: transparent;
+  font-family: var(--sds-font-mono);
+  font-size: 12px;
+  padding: 0;
+}
+.lv-check.is-on {
+  background: var(--sds-gold);
+  border-color: var(--sds-gold);
+  color: var(--sds-on-gold);
+}
+.lv-preview {
+  border-left: 1px solid var(--sds-line);
+  padding: 24px;
+  position: sticky;
+  top: 73px;
+  max-height: calc(100dvh - 73px);
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+.lv-preview-frame {
+  border: 1px solid var(--sds-line-strong);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  position: relative;
+  container-type: inline-size;
+}
+.lv-preview-frame .lv-stage {
+  position: absolute;
+  inset: 0;
+  width: 1600px;
+  height: 900px;
+  transform-origin: 0 0;
+  transform: scale(var(--lv-scale, 0.4));
+}
+.lv-segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.lv-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.lv-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.lv-error {
+  color: var(--sds-ink);
+  border-left: 3px solid var(--sds-gold);
+  padding: 8px 12px;
+  background: var(--sds-highlight-wash);
+  font-size: 14px;
+}
+
+@media (max-width: 1100px) {
+  .lv-editor {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+  .lv-preview {
+    display: none;
+  }
+}
+@media (max-width: 720px) {
+  .lv-editor {
+    grid-template-columns: 1fr;
+  }
+  .lv-rail {
+    position: static;
+    max-height: none;
+    border-right: 0;
+    border-bottom: 1px solid var(--sds-line);
+  }
+  .lv-joinline .lv-qr {
+    display: none;
+  }
+  .lv-joincard {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  .lv-scale {
+    grid-template-columns: 1fr;
+  }
+  .lv-scale-ends {
+    grid-column: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lv *,
+  .lv *::before,
+  .lv *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .lv-reaction {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------- round three: settings, console, report */
+
+.lv-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+.lv-chips span {
+  font-family: var(--sds-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border: 1px solid var(--sds-line-strong);
+  color: var(--sds-ink-3);
+}
+.lv-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sds-ink-4);
+  display: inline-block;
+}
+.lv-dot.is-on {
+  background: var(--sds-gold);
+}
+.lv-railitem.is-settings {
+  border-bottom: 1px solid var(--sds-line);
+  margin-bottom: 6px;
+}
+.lv-toggle {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: start;
+  padding: 16px;
+  border: 1px solid var(--sds-line);
+  background: var(--sds-card);
+  cursor: pointer;
+}
+.lv-toggle input {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--sds-gold);
+}
+.lv-toggle b {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.lv-toggle small {
+  display: block;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--sds-ink-3);
+}
+.lv-common {
+  display: grid;
+  gap: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--sds-line);
+}
+
+/* the console: the host's own window or phone */
+.lv-console {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr);
+}
+.lv-console-now {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid var(--sds-line-strong);
+  background: var(--sds-card);
+  border-left: 3px solid var(--sds-gold);
+}
+.lv-console-notes {
+  margin: 0;
+  font-family: var(--sds-font-serif);
+  font-size: 19px;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+.lv-console-notes.is-quiet {
+  font-size: 15px;
+  color: var(--sds-ink-3);
+}
+.lv-console-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.lv-console-controls .lv-btn {
+  min-height: 56px;
+  font-size: 16px;
+}
+.lv-console-section {
+  display: grid;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--sds-line);
+  font-size: 15px;
+}
+.lv-held,
+.lv-jump,
+.lv-progress {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.lv-held li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--sds-gold);
+  background: var(--sds-highlight-wash);
+}
+.lv-held small {
+  display: block;
+  font-family: var(--sds-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+}
+.lv-jump button,
+.lv-progress button {
+  appearance: none;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 2em 1fr;
+  gap: 8px;
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 14px;
+}
+.lv-jump button:hover,
+.lv-progress button:hover {
+  border-color: var(--sds-line-strong);
+}
+.lv-jump button.is-on,
+.lv-progress li.is-on button {
+  border-color: var(--sds-ink);
+  background: var(--sds-card);
+}
+.lv-progress button {
+  grid-template-columns: 2em 1fr auto;
+  position: relative;
+}
+.lv-progress button i {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--sds-gold);
+}
+.lv-console-results {
+  font-size: 14px;
+}
+
+
+/* the report */
+.lv-report .lv-library {
+  max-width: 980px;
+  gap: 40px;
+}
+.lv-report-stats {
+  padding: 20px 0;
+  border-top: 1px solid var(--sds-line);
+  border-bottom: 1px solid var(--sds-line);
+}
+.lv-report-stats .lv-stat small {
+  font-size: 12px;
+}
+.lv-report-news {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  background: var(--sds-card);
+  border: 1px solid var(--sds-line-strong);
+  border-left: 3px solid var(--sds-gold);
+}
+.lv-report-news pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: var(--sds-font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--sds-ink-2);
+}
+.lv-report-slide {
+  display: grid;
+  gap: 14px;
+  break-inside: avoid;
+  padding-top: 28px;
+  border-top: 1px solid var(--sds-line);
+}
+.lv-report-h {
+  font-size: clamp(24px, 3vw, 34px);
+}
+.lv-report-chart {
+  font-size: 16px;
+}
+
+@media print {
+  .lv-noprint,
+  .lv-note-actions,
+  .lv-qa-actions {
+    display: none !important;
+  }
+  .lv-report .lv-library {
+    padding: 0;
+  }
+  .lv-report-slide {
+    page-break-inside: avoid;
+  }
+}
+
+/* every slide enters: a short rise, the house emphatic curve */
+.lv-enter > :not(.lv-no-enter) {
+  animation: lv-in var(--sds-dur-slow) var(--sds-ease-emphatic) both;
+}
+.lv-enter > :nth-child(2) {
+  animation-delay: 60ms;
+}
+.lv-enter > :nth-child(3) {
+  animation-delay: 120ms;
+}
+
+/* ---------------------------------------------------------------- the race (race.ts), 24 Oct */
+/* Question slides keep their title where it lands: the chart grows below it instead of re-centring the slide. */
+.lv-stage-main.is-question {
+  align-content: start;
+}
+/* What only makes sense once the bars have landed comes in after them. */
+.lv-bar-prev,
+.lv-hist-plot svg > g:not(:has(rect)),
+.lv-step-name,
+.lv-step-score {
+  transition: opacity 360ms var(--sds-ease-emphatic);
+}
+.lv-bars:not(.is-done) .lv-bar-prev,
+.lv-hist-plot svg:not(.is-done) > g:not(:has(rect)),
+.lv-step:not(.is-landed) .lv-step-name,
+.lv-step:not(.is-landed) .lv-step-score {
+  opacity: 0;
+}
+.lv-hist-col {
+  transition: fill 180ms var(--sds-ease-emphatic);
+}
+/* The winner's gold edge arrives with the landing. */
+.lv-step-block {
+  transition: border-top-color 180ms var(--sds-ease-emphatic), color 180ms var(--sds-ease-emphatic);
+}
+.lv-step.is-1:not(.is-landed) .lv-step-block {
+  border-top-color: var(--sds-line-strong);
+  color: inherit;
+}
+
+/* ---------------------------------------------------------------- round 2 (fx.ts), 24 Oct */
+/* Sparks: tiny zero-radius squares on parabolas, made and removed by fx.ts. Fixed, so no overflow clips them. */
+.lv-spark {
+  position: fixed;
+  z-index: 60;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+/* The landing flash on a non-leader's end cap. */
+.lv-column-fill,
+.lv-col-fill,
+.lv-step-block {
+  position: relative;
+}
+.lv-cap-flash {
+  position: absolute;
+  pointer-events: none;
+  background: var(--sds-ink);
+}
+.lv-cap-flash.is-right {
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 6px;
+}
+.lv-cap-flash.is-top {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 6px;
+}
+/* Confetti: a canvas over the stage background and under every word on it. */
+.lv-stage {
+  isolation: isolate;
+}
+.lv-confetti {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* The quiz: a beat, then the verdict. Wrong answers fade with a ✗; the headline keeps its height throughout. */
+.lv-quiz-head {
+  display: flex;
+  align-items: end;
+  gap: 18px;
+  min-height: 3.2em;
+}
+.lv-quiz-head .lv-hero-figure,
+.lv-quiz-head .lv-hero-unit {
+  transition: opacity 300ms var(--sds-ease-emphatic);
+}
+.lv-quiz-head:not(.is-revealed) .lv-hero-figure,
+.lv-quiz-head:not(.is-revealed) .lv-hero-unit {
+  opacity: 0;
+}
+.lv-quiz-head .lv-hero-unit b {
+  color: var(--sds-ink);
+  font-weight: 600;
+}
+.lv-quiz-beat {
+  font-family: var(--sds-font-display);
+  font-size: 1.9em;
+  line-height: 1.1;
+  animation: lv-in 420ms var(--sds-ease-emphatic) both;
+}
+.lv-quiz .lv-bar {
+  transition: opacity 360ms var(--sds-ease-emphatic);
+}
+.lv-quiz .lv-bar.is-wrong {
+  opacity: 0.38;
+}
+.lv-quiz .lv-bar.is-wrong .lv-bar-mark {
+  color: var(--sds-ink-3);
+  border-color: var(--sds-line);
+}
+.lv-quiz .lv-bar.is-correct .lv-bar-mark {
+  font-size: 1em;
+  font-weight: 600;
+}
+.lv-quiz .lv-bar.is-correct .lv-bar-label {
+  font-weight: 600;
+}
+
+/* The donut's pop: the leader's slice thickens for a moment (stroke in its own gold, animated by fx). */
+.lv-donut-slice.is-lead,
+.lv-donut-arc.is-lead {
+  stroke: var(--sds-gold);
+  stroke-linejoin: miter;
+}
+.lv-donut-slice.is-lead {
+  stroke-width: 0;
+}
+
+/* Agree / disagree, round 2: the side totals as hero figures at each end, a taller bar, neutral on the centre tick. */
+.lv-div-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+}
+.lv-div-hero > span {
+  display: grid;
+  gap: 6px;
+}
+.lv-div-hero .is-agr {
+  justify-items: end;
+  text-align: right;
+}
+.lv-div-hero b {
+  font-family: var(--sds-font-sans);
+  font-weight: 600;
+  font-size: 3.2em;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.lv-div-hero em {
+  font-style: normal;
+  font-family: var(--sds-font-mono);
+  font-size: max(12px, 0.55em);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.lv-div-hero em::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  background: var(--lv-div-1);
+}
+.lv-div-hero .is-agr em::before {
+  background: var(--lv-div-5);
+}
+.lv-div-seg {
+  font-size: max(12px, 0.6em);
+  box-shadow: inset 1px 0 0 var(--sds-paper), inset -1px 0 0 var(--sds-paper);
+}
+.lv-div-was {
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.5em);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+}
+.lv-div-was {
+  display: flex;
+  justify-content: space-between;
+}
+.lv-div-row {
+  align-items: start;
+}
+.lv-div-row .lv-div-label {
+  line-height: var(--div-h);
+}
+.lv-div-row.is-before .lv-div-label {
+  line-height: 1;
+}
+.lv-legend.is-quiet {
+  opacity: 0.7;
+  justify-content: center;
+}
+.lv-legend.is-quiet .lv-key {
+  width: 9px;
+  height: 9px;
+}
+
+/* Agree / disagree, round 3 (24 Oct): one full-width 100% stacked bar, so no half of it is ever empty; percentages
+   inside, names under, and the room's lean on −2 … +2 as a gold flag on its own axis. */
+.lv-agree {
+  --div-h: clamp(56px, 9vh, 96px);
+}
+.lv-stack-plot {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+.lv-div-row.is-before .lv-stack-plot {
+  --div-h: clamp(12px, 2vh, 20px);
+  gap: 6px;
+}
+.lv-stack-bar {
+  position: relative;
+  height: var(--div-h);
+  background: color-mix(in oklab, var(--lv-track) 55%, transparent);
+}
+.lv-stack-bar .lv-div-seg b {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  opacity: 0;
+  transition: opacity 260ms var(--sds-ease-emphatic);
+}
+.lv-stack-bar .lv-div-seg.is-landed b {
+  opacity: 1;
+}
+.lv-stack-bar .lv-div-seg b.is-hidden,
+.lv-stack-names .is-hidden {
+  visibility: hidden;
+}
+.lv-stack-names {
+  position: relative;
+  height: 1.2em;
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.5em);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+}
+.lv-stack-names > span {
+  position: absolute;
+  top: 0;
+  translate: -50% 0;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 260ms var(--sds-ease-emphatic);
+}
+.lv-stack-names > span.is-landed {
+  opacity: 1;
+}
+.lv-div-row.is-lean {
+  margin-top: 0.4em;
+}
+.lv-div-row.is-lean .lv-div-label {
+  line-height: 1;
+  padding-top: 2.6em;
+}
+.lv-lean {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 4.6em;
+}
+/* The lean axis: a hairline with ticks at −2 … +2, its numbers under it. */
+.lv-lean-axis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 2.6em;
+  height: 1px;
+  background: var(--sds-line-strong);
+}
+.lv-lean-tick {
+  position: absolute;
+  top: 2.6em;
+  translate: -50% 0;
+  padding-top: 12px;
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.5em);
+  color: var(--sds-ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.lv-lean-tick::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 1px;
+  height: 9px;
+  background: var(--sds-line-strong);
+}
+.lv-lean-tick:first-of-type {
+  translate: 0 0;
+}
+.lv-lean-tick:first-of-type::before {
+  left: 0;
+}
+.lv-lean-tick:last-of-type {
+  translate: -100% 0;
+}
+.lv-lean-tick:last-of-type::before {
+  left: auto;
+  right: 0;
+}
+/* Where the room was: a hollow ink square on the axis. The move to now: a gold stroke along the axis. */
+.lv-lean-was {
+  position: absolute;
+  top: calc(2.6em - 5px);
+  width: 11px;
+  height: 11px;
+  margin-left: -5.5px;
+  background: var(--sds-paper);
+  box-shadow: inset 0 0 0 2px var(--sds-ink-3);
+  z-index: 1;
+}
+.lv-lean-move {
+  position: absolute;
+  top: calc(2.6em - 1px);
+  height: 3px;
+  background: var(--sds-gold);
+  transform-origin: left;
+  scale: 0 1;
+  transition: scale 420ms var(--sds-ease-emphatic);
+}
+.lv-lean-move.is-on {
+  scale: 1 1;
+}
+.lv-lean-needle {
+  position: absolute;
+  top: 0;
+  width: 0;
+  height: calc(2.6em + 9px);
+  z-index: 2;
+  opacity: 0;
+}
+.lv-lean-needle.is-on {
+  opacity: 1;
+}
+.lv-lean-pin {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 2px;
+  background: var(--sds-gold);
+}
+.lv-lean-pin::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: -4px;
+  width: 10px;
+  height: 10px;
+  background: var(--sds-gold);
+}
+.lv-lean-flag {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+  font-family: var(--sds-font-mono);
+  font-size: max(12px, 0.6em);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  padding: 0.45em 0.7em;
+  background: var(--sds-gold);
+  color: var(--sds-on-gold);
+  text-transform: uppercase;
+}
+.lv-lean-flag b {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.lv-lean-flag em {
+  font-style: normal;
+  opacity: 0.75;
+}
+.lv-lean-needle.is-right .lv-lean-flag {
+  left: -1px;
+}
+.lv-lean-needle.is-left .lv-lean-flag {
+  right: -1px;
+}
+
+/* Columns, round 2: the figure rides on top of its column (it used to sit above it in the flex stack, which squeezed
+   the tallest column by the figure's height and hid its run-on past the end). */
+.lv-column-plot {
+  padding-top: 1.8em;
+}
+.lv-column-fill,
+.lv-col-fill {
+  flex-shrink: 0;
+}
+.lv-column-cap,
+.lv-col-cap {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  translate: -50% 0;
+  white-space: nowrap;
+  padding-bottom: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rating, round 2: wide columns on faint tracks, every count on top, and the average as a gold line with a chip. */
+.lv-cols-wrap {
+  position: relative;
+  padding-top: 3.2em;
+}
+.lv-cols {
+  gap: clamp(4px, 0.6vw, 10px);
+  height: max(130px, 24vh);
+}
+.lv-col {
+  background: color-mix(in oklab, var(--lv-track) 55%, transparent);
+  gap: 0;
+}
+.lv-col-fill {
+  width: 100%;
+}
+.lv-col-cap {
+  z-index: 3;
+  padding-bottom: 4px;
+  font-size: max(12px, 0.6em);
+  opacity: 0;
+  transition: opacity 300ms var(--sds-ease-emphatic);
+}
+.lv-col.is-landed .lv-col-cap {
+  opacity: 1;
+}
+/* Rating, round 3 (24 Oct): the average as a flag on a pole. A gold flag in the top lane, a 2px pole to the axis line
+   and a square foot on it; the before mark is a 1px dashed ink pole with an outlined flag in the lane below and a
+   hollow foot. Each lane sits above the counts lane, so a flag never meets a count. Positions are transforms set in
+   Results.tsx (snapped to device pixels at rest); the plot gap to the axis line is 8px (.lv-rating-plot). */
+.lv-cols-wrap.has-prev {
+  padding-top: 4.3em;
+}
+.lv-avg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.lv-avg-body {
+  position: absolute;
+  inset: 0;
+}
+.lv-avg-pole {
+  position: absolute;
+  top: 0;
+  bottom: -9px;
+  left: -1px;
+  width: 2px;
+  background: var(--sds-gold);
+}
+.lv-avg-foot {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: -5px;
+  width: 10px;
+  height: 10px;
+  background: var(--sds-gold);
+}
+.lv-avg-flag {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+  font-family: var(--sds-font-mono);
+  font-size: max(12px, 0.6em);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  padding: 0.45em 0.7em;
+  background: var(--sds-gold);
+  color: var(--sds-on-gold);
+  font-variant-numeric: tabular-nums;
+}
+.lv-avg.is-right .lv-avg-flag {
+  left: -1px;
+}
+.lv-avg.is-left .lv-avg-flag {
+  right: -1px;
+}
+.lv-avg.is-prev {
+  z-index: 1;
+}
+.lv-avg.is-prev .lv-avg-pole {
+  top: 1.45em;
+  left: 0;
+  width: 1px;
+  background: repeating-linear-gradient(to bottom, var(--sds-ink-3) 0 4px, transparent 4px 8px);
+}
+.lv-avg.is-prev .lv-avg-foot {
+  left: -3.5px;
+  top: calc(100% + 5px);
+  width: 8px;
+  height: 8px;
+  background: var(--sds-paper);
+  box-shadow: inset 0 0 0 1px var(--sds-ink-3);
+}
+.lv-avg.is-prev .lv-avg-flag {
+  top: 1.45em;
+  font-size: max(11px, 0.5em);
+  padding: 0.35em 0.55em;
+  background: var(--sds-paper);
+  color: var(--sds-ink-3);
+  box-shadow: inset 0 0 0 1px var(--sds-line-strong);
+}
+.lv-avg.is-prev.is-right .lv-avg-flag {
+  left: 0;
+}
+/* A pole that crosses a count passes behind it: a paper halo round the figures. */
+.lv-col-cap {
+  text-shadow:
+    2px 0 0 var(--sds-paper),
+    -2px 0 0 var(--sds-paper),
+    0 2px 0 var(--sds-paper),
+    0 -2px 0 var(--sds-paper);
+}
+/* The hero figure's box is the widest figure the scale can show (a hidden ghost), so the plot beside it holds still. */
+.lv-hero-fixed {
+  display: inline-grid;
+  font-variant-numeric: tabular-nums;
+}
+.lv-hero-fixed > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+.lv-hero-fixed > span:last-child,
+.lv-rating-hero .lv-hero-unit {
+  width: 0;
+  min-width: 100%;
+}
+.lv-hero-ghost {
+  visibility: hidden;
+}
+
+/* Final podium, round 2: a fixed floor (the podium keeps its final height from the first frame, so growing blocks
+   can never push the floor down), bigger names, and first a tier above. */
+.lv-podium {
+  --lv-podium-h: 26vh;
+  height: calc(var(--lv-podium-h) + 6em);
+  align-items: end;
+}
+.lv-step {
+  gap: 8px;
+}
+.lv-step-name {
+  font-size: 1.35em;
+  line-height: 1.1;
+}
+.lv-step.is-1 .lv-step-name {
+  font-size: 1.8em;
+}
+.lv-step-score {
+  font-size: 0.85em;
+  color: var(--sds-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.lv-step.is-1 .lv-step-score {
+  color: var(--sds-ink);
+}
+.lv-step-block {
+  font-size: 2.6em;
+}
+
+/* Leaderboard, round 2: rows rise from below (never drop from above), a big rank, a score bar on the race. */
+.lv-board {
+  border-top: 0;
+}
+.lv-board li {
+  grid-template-columns: 3.4em minmax(0, 1fr) auto;
+  grid-template-areas:
+    'rank name score'
+    'rank track track';
+  column-gap: 16px;
+  row-gap: 3px;
+  align-items: center;
+  padding: 3px 0;
+  font-size: 0.85em;
+  animation: lv-board-rise 520ms var(--sds-ease-emphatic) both;
+}
+.lv-board li::before {
+  content: none;
+}
+.lv-board-rank {
+  grid-area: rank;
+  font-family: var(--sds-font-display);
+  font-size: 1.25em;
+  line-height: 1;
+  color: var(--sds-ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.lv-board-rank small {
+  font-size: 0.45em;
+  margin-left: 0.08em;
+  vertical-align: 0.9em;
+  letter-spacing: 0.04em;
+}
+.lv-board-name {
+  grid-area: name;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.lv-board-score {
+  grid-area: score;
+  font-family: var(--sds-font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--sds-ink-2);
+}
+.lv-board-track {
+  grid-area: track;
+  position: relative;
+  height: clamp(6px, 0.9vh, 10px);
+  background: var(--lv-track);
+}
+.lv-board-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--lv-mark);
+  transition: background-color 180ms var(--sds-ease-emphatic);
+}
+.lv-board li.is-top {
+  font-size: 1em;
+  padding: 6px 0;
+}
+.lv-board li.is-top .lv-board-rank {
+  font-size: 1.8em;
+  color: var(--sds-ink);
+}
+.lv-board li.is-top .lv-board-name {
+  font-size: 1.2em;
+  font-weight: 600;
+}
+.lv-board li.is-top .lv-board-score {
+  font-size: 1.05em;
+  color: var(--sds-ink);
+}
+.lv-board li.is-top .lv-board-track {
+  height: clamp(10px, 1.5vh, 18px);
+}
+.lv-board li:first-child .lv-board-rank {
+  color: var(--sds-gold);
+}
+.lv-board li.is-lead .lv-board-fill {
+  background: var(--sds-gold);
+}
+.lv-board li.is-top + li:not(.is-top) {
+  margin-top: 6px;
+  border-top: 1px solid var(--sds-line-strong);
+  padding-top: 10px;
+}
+@keyframes lv-board-rise {
+  from {
+    opacity: 0;
+    transform: translateY(60vh);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lv-board li,
+  .lv-quiz-beat {
+    animation: none;
+  }
+}
+
+/* Word cloud, round 2: ink tones by rank, the top word gold. Smallest first, each rises a little and settles (the
+   rise is the separate translate property, so it composes with the layout's transform); the top word lands last
+   with one overshooting scale (a single back-out curve, not stitched keyframes). */
+.lv-word {
+  animation: lv-word-rise 520ms var(--sds-ease-emphatic) both;
+  transition:
+    transform var(--sds-dur-slow) var(--sds-ease-emphatic),
+    font-size var(--sds-dur-slow) var(--sds-ease-emphatic),
+    color var(--sds-dur-base) var(--sds-ease);
+}
+.lv-word.is-ink {
+  color: var(--sds-ink);
+}
+.lv-word.is-ink-2 {
+  color: var(--sds-ink-2);
+}
+.lv-word.is-ink-3 {
+  color: var(--sds-ink-3);
+}
+.lv-word.is-top {
+  animation: lv-word-top 640ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transform-origin: center;
+}
+@keyframes lv-word-rise {
+  from {
+    opacity: 0;
+    translate: 0 0.35em;
+  }
+}
+@keyframes lv-word-top {
+  from {
+    opacity: 0;
+    scale: 0.55;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lv-word,
+  .lv-word.is-top {
+    animation: none;
+  }
+}
+
+/* Prediction, round 2: a scoreboard of big figures that count in turn; the median an ink pin with a chip on the
+   axis; the truth a gold flag line with a gold chip; a bracket saying how far off the room was. */
+.lv-stats.is-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5em, 1fr));
+  gap: 12px clamp(16px, 2.4vw, 40px);
+  border-bottom: 1px solid var(--sds-line);
+  padding-bottom: clamp(10px, 1.6vh, 18px);
+}
+.lv-stats.is-board .lv-stat b {
+  font-size: 2.1em;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transition: opacity 260ms var(--sds-ease-emphatic);
+}
+.lv-stats.is-board .lv-stat:not(.is-on) b {
+  opacity: 0;
+}
+.lv-stats.is-board .lv-stat.is-gold b {
+  box-shadow: inset 0 -0.3em 0 var(--sds-highlight-wash);
+}
+[data-sds-theme='dark'] .lv-stats.is-board .lv-stat.is-gold b {
+  color: var(--sds-gold);
+  box-shadow: none;
+}
+.lv-hist-plot svg {
+  overflow: hidden;
+}
+.lv-hist-pin {
+  animation: lv-fade 300ms var(--sds-ease) both;
+}
+.lv-hist-pin .lv-hist-median {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: lv-pin-rise 420ms var(--sds-ease-emphatic) both;
+}
+.lv-hist-pinhead {
+  fill: var(--sds-ink);
+  stroke: var(--sds-paper);
+  stroke-width: 2;
+}
+.lv-hist-chip rect {
+  fill: var(--sds-paper);
+  stroke: var(--sds-ink);
+  stroke-width: 1;
+}
+.lv-hist-chip text {
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.56em);
+  letter-spacing: 0.02em;
+  fill: var(--sds-ink);
+}
+.lv-hist-chip.is-truth rect {
+  fill: var(--sds-gold);
+  stroke: none;
+}
+.lv-hist-chip.is-truth text {
+  fill: var(--sds-on-gold);
+  font-weight: 600;
+}
+.lv-hist-bracket {
+  animation: lv-fade 360ms var(--sds-ease) both;
+}
+.lv-hist-bracket path {
+  fill: none;
+  stroke: var(--sds-ink-3);
+  stroke-width: 1.5;
+}
+.lv-hist-bracket text {
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.52em);
+  letter-spacing: 0.04em;
+  fill: var(--sds-ink-2);
+}
+@keyframes lv-pin-rise {
+  from {
+    transform: scaleY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lv-hist-pin,
+  .lv-hist-pin .lv-hist-median,
+  .lv-hist-bracket {
+    animation: none;
+  }
+}
+
+/* 2×2, round 2: quadrant tiles with a big count in the outer corner; the busiest takes a gold wash once every dot
+   has landed. Dots squash from their foot on landing. */
+.lv-grid-tile {
+  fill: transparent;
+  transition: fill 420ms var(--sds-ease-emphatic);
+}
+.lv-grid-tile.is-lead {
+  fill: var(--sds-highlight-wash);
+}
+.lv-grid-count {
+  font-family: var(--sds-font-sans);
+  font-weight: 600;
+  font-size: 1.5em;
+  fill: var(--sds-ink);
+  font-variant-numeric: tabular-nums;
+}
+.lv-grid-dot {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.lv-grid-meanmark {
+  transform-box: view-box;
+}
+.lv-grid-wrap.is-fit {
+  justify-content: center;
+}
+.lv-grid-wrap.is-fit .lv-grid-plot {
+  width: min(100%, calc(50vh + 3em));
+}
+
+/* ---------------------------------------------------------------- round 3 (24 Oct): quiz answer tiles */
+/* The presenter's quiz: big tiles, there while the question runs. Wrong ones shatter (fx.ts shatter) into a dimmed,
+   smaller tile with ✗; the right one grows (one back-out curve), takes a gold edge, a wash and a big gold ✓. The
+   verdict and count keep their space from the first frame, so nothing reflows; only scale moves. */
+.lv-answers {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
+  gap: clamp(10px, 1.4vw, 22px);
+}
+/* Not .lv-tile: that is the host library's card. Sharing the name broke the library's layout; the border, text-align
+   and align-content below are what the answer tile used to inherit from the card, kept so the quiz looks the same. */
+.lv-answer {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  align-content: start;
+  text-align: left;
+  border: 1px solid var(--sds-line);
+  column-gap: 0.7em;
+  row-gap: 0.2em;
+  min-height: 3.4em;
+  padding: 0.7em 0.9em;
+  background: color-mix(in oklab, var(--sds-ink) 4%, var(--sds-paper));
+  box-shadow: inset 0 0 0 1px var(--sds-line-strong);
+  transition:
+    scale 240ms var(--sds-ease-emphatic),
+    opacity 240ms var(--sds-ease-emphatic),
+    background-color 240ms var(--sds-ease-emphatic),
+    box-shadow 240ms var(--sds-ease-emphatic);
+}
+.lv-answer-mark {
+  grid-row: 1 / 3;
+  display: grid;
+  place-items: center;
+  width: 1.9em;
+  height: 1.9em;
+  font-family: var(--sds-font-mono);
+  font-size: 0.8em;
+  color: var(--sds-ink-2);
+  box-shadow: inset 0 0 0 1px var(--sds-line-strong);
+}
+.lv-answer-text {
+  font-family: var(--sds-font-sans);
+  font-weight: 500;
+  font-size: 1.15em;
+  line-height: 1.15;
+  min-width: 0;
+}
+/* One fixed box for the verdict in every state (empty, ✗, ✓), so the tile never changes height. */
+.lv-answer-verdict {
+  grid-row: 1 / 3;
+  grid-column: 3;
+  width: 1.3em;
+  height: 1.3em;
+  display: grid;
+  place-items: center;
+  font-family: var(--sds-font-sans);
+  font-size: 1.9em;
+  line-height: 1;
+  color: var(--sds-ink-3);
+}
+.lv-answer-count {
+  grid-column: 2;
+  font-family: var(--sds-font-mono);
+  font-size: max(11px, 0.55em);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+  min-height: 1.3em;
+}
+.lv-answer-count b {
+  font-weight: 500;
+  color: var(--sds-ink);
+  font-variant-numeric: tabular-nums;
+}
+.lv-answer.is-out {
+  scale: 0.92;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--sds-line);
+}
+.lv-answer.is-out .lv-answer-text,
+.lv-answer.is-out .lv-answer-mark {
+  opacity: 0.42;
+}
+.lv-answer.is-right {
+  scale: 1.04;
+  z-index: 1;
+  background: color-mix(in oklab, var(--sds-highlight-wash) 100%, var(--sds-paper));
+  box-shadow: inset 0 0 0 3px var(--sds-gold);
+  transition:
+    scale 460ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 240ms var(--sds-ease-emphatic),
+    box-shadow 240ms var(--sds-ease-emphatic);
+}
+/* The big ✓ sits on a gold square in on-gold ink, so it reads on paper too (gold text is 1.7:1 there). */
+.lv-answer.is-right .lv-answer-verdict {
+  color: var(--sds-on-gold);
+  background: var(--sds-gold);
+}
+.lv-answer.is-right .lv-answer-mark {
+  background: var(--sds-gold);
+  color: var(--sds-on-gold);
+  box-shadow: none;
+}
+.lv-quiz-tiles > div[aria-hidden] {
+  gap: clamp(16px, 2.6vh, 32px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lv-answer,
+  .lv-answer.is-right {
+    transition: none;
+  }
+}
+
+/* The presenter's sound toggle (sound.ts): a quiet mono switch in the top bar, faded with the controls. */
+.lv-sound {
+  font-family: var(--sds-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+  background: none;
+  border: 0;
+  box-shadow: inset 0 0 0 1px var(--sds-line);
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: opacity 400ms var(--sds-ease), color 160ms var(--sds-ease);
+}
+.lv-sound[aria-pressed='true'] {
+  color: var(--sds-ink);
+  box-shadow: inset 0 0 0 1px var(--sds-gold);
+}
+.lv-stage.is-idle .lv-sound:not(:focus-visible) {
+  opacity: 0;
+}
+/* The tiles' headline has one height whether it is waiting, in the beat or counting. */
+.lv-quiz-tiles .lv-quiz-head {
+  height: 3.3em;
+  min-height: 0;
+}
+
+/* The podium's floor (round 3): a plinth row under the three blocks, there from the first frame. The blocks stand on
+   its top edge (the grid has no row gap), their numerals are clipped inside them, and confetti falls behind it. */
+.lv-podium {
+  grid-template-rows: minmax(0, 1fr) auto;
+  row-gap: 0;
+  height: calc(var(--lv-podium-h) + 6em + 0.8em);
+}
+.lv-step {
+  min-height: 0;
+}
+.lv-step-block {
+  padding-top: 0;
+  overflow: hidden;
+  min-height: 0;
+}
+.lv-step-block > span {
+  display: block;
+  padding-top: 0.25em;
+  line-height: 1;
+}
+.lv-step-block.is-flat {
+  border-color: transparent;
+}
+.lv-podium-floor {
+  grid-column: 1 / -1;
+  height: 0.8em;
+  margin-inline: -1.2em;
+  background: var(--sds-card);
+  box-shadow: inset 0 2px 0 var(--sds-ink);
+}
+
+/* Leaderboard, round 3 (B9): rows sit in absolute slots and glide between them on `translate` as the race re-sorts
+   them (ScoreBoard). The first three slots are the medal tier (taller, bigger, a medal on the rank, the leader's gold);
+   a rule under the third slot. Every row is 1em, so the slot sizes in em mean the same on the list and its rows. */
+.lv-board.is-slots {
+  --hs: 1.9em;
+  --hb: 3em;
+  --gap: 0.9em;
+  position: relative;
+  height: calc(min(var(--rows), 3) * var(--hb) + max(var(--rows) - 3, 0) * var(--hs) + clamp(0, var(--rows) - 3, 1) * var(--gap));
+}
+.lv-board.is-slots.has-tail::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(3 * var(--hb) + var(--gap) / 2);
+  height: 1px;
+  background: var(--sds-line-strong);
+}
+.lv-board.is-slots li {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--hs);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 1em;
+  align-content: center;
+  translate: 0 calc(min(var(--slot), 3) * var(--hb) + max(var(--slot) - 3, 0) * var(--hs) + clamp(0, var(--slot) - 2, 1) * var(--gap));
+  transition:
+    translate 380ms var(--sds-ease-emphatic),
+    height 380ms var(--sds-ease-emphatic);
+}
+.lv-board.is-slots li.is-top {
+  height: var(--hb);
+  padding: 0;
+}
+.lv-board.is-slots li.is-top + li:not(.is-top) {
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 0;
+}
+.lv-board.is-slots li:not(.is-top) .lv-board-name,
+.lv-board.is-slots li:not(.is-top) .lv-board-score {
+  font-size: 0.85em;
+}
+.lv-board.is-slots .lv-board-name,
+.lv-board.is-slots .lv-board-score,
+.lv-board.is-slots .lv-board-rank {
+  transition: font-size 380ms var(--sds-ease-emphatic), color 200ms var(--sds-ease);
+}
+/* The rank's colour follows the slot, not the final ranking, so the list never gives the winner away. */
+.lv-board.is-slots li:first-child .lv-board-rank {
+  color: var(--sds-ink-3);
+}
+.lv-board.is-slots .lv-board-rank.is-medal {
+  justify-self: start;
+  display: grid;
+  place-items: center;
+  width: 1.55em;
+  height: 1.55em;
+  border-radius: 50%;
+  font-size: 1.5em;
+  color: var(--sds-ink);
+  box-shadow: inset 0 0 0 2px var(--sds-ink-2);
+}
+.lv-board.is-slots .lv-board-rank.is-medal small {
+  vertical-align: 0.5em;
+}
+.lv-board.is-slots .lv-board-rank.is-m1 {
+  background: var(--sds-gold);
+  color: var(--sds-on-gold);
+  box-shadow: none;
+}
+.lv-board.is-slots .lv-board-rank.is-m3 {
+  box-shadow: inset 0 0 0 1px var(--sds-ink-3);
+  color: var(--sds-ink-2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lv-board.is-slots li {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------- leaderboard
+   The rank numbers stay put in a column of their own, set in type, no badges. Only the rows travel, and every row has
+   the same height, so an overtake is a single glide with nothing resizing on the way. */
+.lv-board-wrap {
+  --h: 2.35em;
+  --gap: 0.9em;
+  --rank: 3.4em;
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--rank) minmax(0, 1fr);
+  column-gap: 16px;
+  height: calc(var(--rows) * var(--h) + clamp(0, var(--rows) - 3, 1) * var(--gap));
+}
+.lv-board-wrap .lv-board.is-slots {
+  height: auto;
+}
+.lv-board-wrap .lv-board.is-slots.has-tail::after {
+  top: calc(3 * var(--h) + var(--gap) / 2);
+}
+.lv-board-wrap .lv-board.is-slots li,
+.lv-board-wrap .lv-board.is-slots li.is-top {
+  height: var(--h);
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'name score'
+    'track track';
+  translate: 0 calc(var(--slot) * var(--h) + clamp(0, var(--slot) - 2, 1) * var(--gap));
+  transition: translate 460ms var(--sds-ease-emphatic);
+}
+.lv-board-wrap .lv-board.is-slots li .lv-board-name,
+.lv-board-wrap .lv-board.is-slots li .lv-board-score {
+  font-size: 1em;
+}
+.lv-board-ranks {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lv-board-ranks li {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: var(--h);
+  display: flex;
+  align-items: center;
+  translate: 0 calc(var(--k) * var(--h) + clamp(0, var(--k) - 2, 1) * var(--gap));
+  /* 1em, like the rows: --h is in em, so a different size here would put every rank off its row. The number's own
+     size lives on the inner span. */
+  font-size: 1em;
+  font-family: var(--sds-font-display);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--sds-ink-3);
+  animation: lv-board-rise 520ms var(--sds-ease-emphatic) both;
+}
+.lv-board-ranks .lv-board-rank-n {
+  font-size: 1.05em;
+}
+.lv-board-ranks li small {
+  font-size: 0.48em;
+  margin-left: 0.06em;
+  vertical-align: 0.85em;
+  letter-spacing: 0.04em;
+}
+.lv-board-ranks li.is-m1,
+.lv-board-ranks li.is-m2,
+.lv-board-ranks li.is-m3 {
+  font-weight: 600;
+  color: var(--sds-ink);
+}
+.lv-board-ranks li.is-m1 .lv-board-rank-n,
+.lv-board-ranks li.is-m2 .lv-board-rank-n,
+.lv-board-ranks li.is-m3 .lv-board-rank-n {
+  font-size: 1.5em;
+}
+.lv-board-ranks li.is-m3 {
+  color: var(--sds-ink-2);
+}
+/* First place: gold on the dark stage; on paper, ink over the house gold wash (gold text is 1.78:1 on paper). */
+.lv-board-ranks li.is-m1 .lv-board-rank-n {
+  color: var(--sds-ink);
+  background: linear-gradient(transparent 58%, var(--sds-highlight-wash) 58%, var(--sds-highlight-wash) 92%, transparent 92%);
+}
+[data-sds-theme='dark'] .lv-board-ranks li.is-m1 .lv-board-rank-n {
+  color: var(--sds-gold);
+  background: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lv-board-wrap .lv-board.is-slots li {
+    transition: none;
+  }
+  .lv-board-ranks li {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------- 28 Oct: reveal on the host's word, reactions you can see */
+
+/* the phone: a tap flies its emoji up and says where it went */
+.lv-rxwrap {
+  position: relative;
+}
+.lv-rx-note {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 10px);
+  pointer-events: none;
+}
+.lv-rx-note > span {
+  display: block;
+  white-space: nowrap;
+  font-family: var(--sds-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sds-ink-2);
+  background: var(--sds-paper);
+  border: 1px solid var(--sds-line-strong);
+  padding: 6px 10px;
+  animation: lv-rx-note 1800ms var(--sds-ease) both;
+}
+@keyframes lv-rx-note {
+  0% {
+    opacity: 0;
+    translate: 0 6px;
+  }
+  12%,
+  80% {
+    opacity: 1;
+    translate: 0 0;
+  }
+  100% {
+    opacity: 0;
+    translate: 0 0;
+  }
+}
+.lv-rx-fly {
+  position: fixed;
+  z-index: 30;
+  pointer-events: none;
+  font-size: 34px;
+  line-height: 1;
+  translate: -50% 0;
+  animation: lv-rx-fly 1500ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+@keyframes lv-rx-fly {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6);
+  }
+  14% {
+    opacity: 1;
+    transform: translateY(-28px) scale(1.3);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-38vh) scale(1);
+  }
+}
+
+/* results held back: the count beside the question, and open answers as face-down cards */
+.lv-tally {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+  flex: none;
+  padding-top: 0.4em;
+}
+.lv-tally b {
+  font-family: var(--sds-font-display);
+  font-weight: 400;
+  font-size: clamp(44px, 5.5vw, 96px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  animation: lv-tally-bump 420ms var(--sds-ease-emphatic);
+}
+.lv-tally span {
+  font-family: var(--sds-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sds-ink-3);
+}
+@keyframes lv-tally-bump {
+  0% {
+    scale: 1.25;
+    color: var(--sds-gold);
+  }
+  100% {
+    scale: 1;
+  }
+}
+/* a held poll keeps its options and empty bars; its figures come with the reveal */
+.lv-stage-main.is-held .lv-bar-figure {
+  visibility: hidden;
+}
+.lv-facedown {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: clamp(8px, 1vw, 14px);
+  padding-top: clamp(8px, 2vh, 24px);
+  max-height: 48vh;
+  overflow: hidden;
+}
+.lv-facedown-card {
+  width: clamp(88px, 8.4vw, 150px);
+  aspect-ratio: 3 / 2;
+  border: 1px solid var(--sds-line-strong);
+  background: repeating-linear-gradient(135deg, var(--sds-paper-2) 0 6px, var(--sds-paper) 6px 12px);
+  animation: lv-card-down 560ms var(--sds-ease-emphatic) both;
+}
+.lv-facedown-card.is-new {
+  border-top: 3px solid var(--sds-gold);
+}
+.lv-facedown-more {
+  align-self: center;
+  font-family: var(--sds-font-mono);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  color: var(--sds-ink-3);
+}
+@keyframes lv-card-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-40px) scale(1.15);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(3px) scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lv-rx-fly {
+    display: none;
+  }
+}
