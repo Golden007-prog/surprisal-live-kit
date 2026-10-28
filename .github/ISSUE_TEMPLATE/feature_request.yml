@@ -1,0 +1,24 @@
+name: Feature or slide type
+description: Suggest a new slide type or a change.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What you want to do in a session
+      description: The moment in a session, and what is missing now.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: What the phone shows, and what the screen shows. A sketch helps.
+    validations:
+      required: true
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Help
+      options:
+        - label: I would like to build it myself.

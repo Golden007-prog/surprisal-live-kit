@@ -1,9 +1,33 @@
 {
   "name": "surprisal-live-kit",
   "version": "1.0.0",
-  "description": "Polls, word clouds, quizzes, reactions and Q&A for live sessions. Phones join with a 4-letter code. White-label: your name, logo and colours.",
-  "private": true,
+  "description": "An open-source, self-hosted alternative to Mentimeter, Slido and Kahoot: live polls, word clouds, quizzes and Q&A. Phones join with a code.",
+  "keywords": [
+    "mentimeter-alternative",
+    "slido-alternative",
+    "kahoot-alternative",
+    "audience-engagement",
+    "live-polling",
+    "quiz",
+    "word-cloud",
+    "presentation",
+    "self-hosted",
+    "white-label",
+    "react",
+    "vite",
+    "supabase",
+    "vercel"
+  ],
+  "homepage": "https://github.com/habit-ai/surprisal-live-kit#readme",
+  "bugs": {
+    "url": "https://github.com/habit-ai/surprisal-live-kit/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/habit-ai/surprisal-live-kit.git"
+  },
   "license": "MIT",
+  "private": true,
   "type": "module",
   "engines": {
     "node": ">=20.19"
@@ -13,7 +37,9 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "demo": "node scripts/demo.mjs",
+    "screenshots": "node scripts/screenshots.mjs"
   },
   "dependencies": {
     "qrcode-generator": "2.0.4",

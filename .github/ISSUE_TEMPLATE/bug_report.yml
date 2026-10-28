@@ -1,0 +1,45 @@
+name: Bug report
+description: Something on the screen, the phone or the host page does not work.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to see it
+      placeholder: |
+        1. Go live with the Webinar template
+        2. Join on a phone
+        3. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      multiple: true
+      options:
+        - Presenter screen
+        - Phone
+        - Console
+        - Host page or editor
+        - Report or export
+        - Server or database
+    validations:
+      required: true
+  - type: input
+    id: setup
+    attributes:
+      label: Browser, device and setup
+      placeholder: Chrome 140 on macOS, iPhone 15 Safari, deployed on Vercel
+  - type: textarea
+    id: shots
+    attributes:
+      label: Screenshots or logs
+      description: Do not paste a console link or a host link. They hold the host key.
