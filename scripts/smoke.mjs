@@ -48,6 +48,46 @@ try {
   check('the deck goes live', /^[A-Z]{4}$/.test(code), code)
   check('the presenter shows the join code', await until(async () => (await host.locator('.lv-joincard-code').innerText()) === code))
 
+  const hosting = await host.evaluate((code) => JSON.parse(localStorage.getItem('live_kit_hosting')).find((h) => h.code === code), code)
+  const transferred = await browser.newContext()
+  const console = await transferred.newPage()
+  let titleLookups = 0
+  await console.route((url) => url.pathname === '/api/live' && url.searchParams.get('op') === 'state' && !url.searchParams.has('h'),
+    (route) => { titleLookups++; return route.continue() })
+  await console.goto(`${B}/live/host?code=${code}&view=console#k=${hosting.token}`)
+  check('hand-over removes the host key from the address', await until(async () => new URL(console.url()).hash === ''))
+  check('hand-over remembers the deck title', await until(() => console.evaluate(({ code, title }) =>
+    JSON.parse(localStorage.getItem('live_kit_hosting') ?? '[]').some((h) => h.code === code && h.title === title), hosting)))
+  check('hand-over looks up the title once', titleLookups === 1)
+  await console.goto(`${B}/live/host`)
+  check('the hand-over session card shows its deck title', await until(async () =>
+    await console.locator('.lv-tile', { hasText: code }).locator('h2').textContent({ timeout: 500 }) === hosting.title))
+  if (shots) {
+    await console.screenshot({ path: `${shots}/4-handover-library-dark.png` })
+    await console.getByRole('button', { name: 'Switch light and dark' }).click()
+    await console.screenshot({ path: `${shots}/5-handover-library-light.png` })
+  }
+  await transferred.close()
+
+  const offlineTransfer = await browser.newContext()
+  const offlineConsole = await offlineTransfer.newPage()
+  let failedLookup = false
+  const handoverErrors = []
+  offlineConsole.on('pageerror', (error) => handoverErrors.push(error))
+  const isTitleLookup = (url) => url.pathname === '/api/live' && url.searchParams.get('op') === 'state' && !url.searchParams.has('h')
+  await offlineConsole.route(isTitleLookup, async (route) => {
+    await route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"offline"}' })
+    failedLookup = true
+  })
+  const titleFailure = offlineConsole.waitForResponse((response) => isTitleLookup(new URL(response.url())) && response.status() === 503)
+  await offlineConsole.goto(`${B}/live/host?code=${code}&view=console#k=${hosting.token}`)
+  await (await titleFailure).finished()
+  await offlineConsole.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+  check('a failed title lookup keeps the adopted session', failedLookup && handoverErrors.length === 0 && await until(() => offlineConsole.evaluate((code) =>
+    JSON.parse(localStorage.getItem('live_kit_hosting') ?? '[]').some((h) => h.code === code && h.title === 'Live session'), code)))
+  check('a failed title lookup still removes the host key', new URL(offlineConsole.url()).hash === '')
+  await offlineTransfer.close()
+
   const phoneCtx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
   const phone = await phoneCtx.newPage()
   await phone.goto(`${B}/live?c=${code}`)

@@ -11,7 +11,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { KIND_LABEL, TEMPLATES, cleanDeck, uid, type Deck } from '../lib/deck'
 import { BRAND, BrandMark } from '../brand'
-import { joinHost, readJson, writeJson } from '../lib/api'
+import { joinHost, live, readJson, writeJson } from '../lib/api'
 import { Console } from './Console'
 import { Editor } from './Editor'
 import { HOST_NAME, THEME, hostings, rememberHosting, useLibrary, type Hosting, type Saved } from '../lib/hostStore'
@@ -48,8 +48,14 @@ function useTheme() {
 function adoptHandover(code: string | null) {
   const k = new URLSearchParams(location.hash.slice(1)).get('k')
   if (!code || !k || !/^[0-9a-f]{48}$/.test(k)) return
-  if (!hostings().some((h) => h.code === code)) rememberHosting({ code, token: k, title: 'Live session', at: Date.now() })
+  const existing = hostings().some((h) => h.code === code)
+  if (!existing) rememberHosting({ code, token: k, title: 'Live session', at: Date.now() })
   history.replaceState(null, '', location.pathname + location.search)
+  if (existing) return
+  return live.state(code).then(({ title }) => {
+    const current = hostings().find((h) => h.code === code)
+    if (current?.token === k) rememberHosting({ ...current, title })
+  }).catch(() => {})
 }
 
 function NoKey({ code, go }: { code: string; go: (s: string) => void }) {
@@ -67,7 +73,8 @@ function NoKey({ code, go }: { code: string; go: (s: string) => void }) {
 
 export function Host() {
   const route = useRoute()
-  adoptHandover(route.code)
+  const [, refreshHandover] = useState(0)
+  adoptHandover(route.code)?.then(() => refreshHandover((n) => n + 1))
   const theme = useTheme()
   const library = useLibrary()
   const [notice, setNotice] = useState('')
