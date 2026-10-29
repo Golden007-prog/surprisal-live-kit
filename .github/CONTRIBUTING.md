@@ -1,6 +1,7 @@
 # Contributing
 
 Thank you for helping. Bug reports, fixes, new slide types and more languages for the word filter are all welcome.
+Everyone who takes part follows the [code of conduct](/.github/CODE_OF_CONDUCT.md).
 
 ## Ways to help
 

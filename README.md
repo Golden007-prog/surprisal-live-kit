@@ -257,6 +257,7 @@ Help is welcome on any of these. See [CONTRIBUTING.md](.github/CONTRIBUTING.md).
 
 Bug reports, fixes and new slide types are welcome. [CONTRIBUTING.md](.github/CONTRIBUTING.md) shows how to run it, where
 the code is and which checks to run before a pull request. To report a security problem, read [SECURITY.md](.github/SECURITY.md).
+Everyone who takes part follows the [code of conduct](.github/CODE_OF_CONDUCT.md).
 
 ## License
 
