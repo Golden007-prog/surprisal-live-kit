@@ -3,12 +3,12 @@
  * written up as Markdown for a follow-up. Prints cleanly.
  */
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { KIND_LABEL } from '../lib/live'
+import { KIND_LABEL } from '../lib/deck'
 import { BRAND, BrandMark } from '../brand'
-import { live, type ApiError } from './api'
-import { download, slug, type Hosting } from './hostStore'
-import { writeupMarkdown, type Export } from './writeup'
-import { Board, SlideResults } from './Results'
+import { live, type ApiError } from '../lib/api'
+import { download, slug, type Hosting } from '../lib/hostStore'
+import { writeupMarkdown, type Export } from '../lib/writeup'
+import { Board, SlideResults } from '../components/Results'
 
 export function Report({ hosting, onBack, themeBtn }: { hosting: Hosting; onBack: () => void; themeBtn: ReactNode }) {
   const [r, setR] = useState<Export | null>(null)

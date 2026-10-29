@@ -1,7 +1,7 @@
 /** The browser side of /api/live: calls, the polling hook, and what the browser remembers. */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { BRAND } from '../brand'
-import type { Answer, Deck, HostState, MeState, PublicState, Results } from '../lib/live'
+import type { Answer, Deck, HostState, MeState, PublicState, Results } from './deck'
 
 export type SavedDeck = { id: string; deck: Deck; updated_at: number; updated_by: string }
 

@@ -1,11 +1,11 @@
 /** The presenter's slide: what the room sees on the shared screen. Also the editor's preview, at a smaller scale. */
-import './lobby.css'
+import '../styles/lobby.css'
 import { useEffect, useLayoutEffect, useRef, type CSSProperties, type ReactNode } from 'react'
-import { ANSWERABLE, KIND_LABEL, type Results, type Slide } from '../lib/live'
+import { ANSWERABLE, KIND_LABEL, type Results, type Slide } from '../lib/deck'
 import { BrandMark } from '../brand'
 import { Qr } from './Qr'
 import { SlideResults, type HostActions } from './Results'
-import { cue } from './sound'
+import { cue } from '../motion/sound'
 
 export function JoinCard({ code, url, host }: { code: string; url: string; host: string }) {
   return (

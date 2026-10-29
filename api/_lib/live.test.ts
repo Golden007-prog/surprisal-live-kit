@@ -1,7 +1,7 @@
-// npm test — Surprisal Live Kit (api/_lib/live.ts, src/lib/live.ts). The in-memory store; no network.
+// npm test — Surprisal Live Kit (api/_lib/live.ts, src/lib/deck.ts). The in-memory store; no network.
 import { describe, expect, test } from 'vitest'
 import { handleLive, memoryStore, HOST_HEADER, QUIZ_LEAD_MS, type LiveStore } from './live'
-import { binValues, cleanDeck, entryId, isFlagged, quizPoints, roomSurprisal, TEMPLATES, type Deck, type HostState, type MeState, type PublicState } from '../../src/lib/live'
+import { binValues, cleanDeck, entryId, isFlagged, quizPoints, roomSurprisal, TEMPLATES, type Deck, type HostState, type MeState, type PublicState } from '../../src/lib/deck'
 
 const deck: Deck = {
   title: 'Test',

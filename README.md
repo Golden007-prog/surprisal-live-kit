@@ -16,7 +16,7 @@ An open-source, self-hosted alternative to Mentimeter, Slido and Kahoot.</p>
   <a href="#deploy">Deploy</a> ·
   <a href="#make-it-yours">Make it yours</a> ·
   <a href="#roadmap-and-known-issues">Roadmap</a> ·
-  <a href="CONTRIBUTING.md">Contributing</a>
+  <a href=".github/CONTRIBUTING.md">Contributing</a>
 </p>
 
 <p>
@@ -26,7 +26,7 @@ An open-source, self-hosted alternative to Mentimeter, Slido and Kahoot.</p>
   <img src="https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white" alt="React 19">
   <img src="https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white" alt="Vite 8">
   <img src="https://img.shields.io/badge/Supabase-Postgres-3ecf8e?logo=supabase&logoColor=white" alt="Supabase">
-  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="PRs welcome"></a>
+  <a href=".github/CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="PRs welcome"></a>
 </p>
 
 <br>
@@ -177,7 +177,7 @@ the tokens to change first. Change the dark values too, and keep text at a contr
 
 - A one-colour logo turns white in dark mode. For a colour logo, set `--brand-logo-dark-filter: none` in `theme.css`.
 - Replace `public/favicon.svg` with your own icon.
-- The templates on the host page are in `TEMPLATES` in [`src/lib/live.ts`](src/lib/live.ts).
+- The templates on the host page are in `TEMPLATES` in [`src/lib/deck.ts`](src/lib/deck.ts).
 - The word filter's list is `FLAGGED` in the same file.
 - `npm run screenshots` makes the images in this README again, in your colours. The GIF needs `ffmpeg`.
 
@@ -223,7 +223,7 @@ flowchart LR
   the free plans.
 - **One handler.** All the server logic is in [`api/_lib/live.ts`](api/_lib/live.ts). It runs on an in-memory store
   for `npm run dev` and the tests, and on Supabase in production.
-- **React on the client.** Two pages: [`live.html`](live.html) for phones and [`live-host.html`](live-host.html) for
+- **React on the client.** Two pages: [`index.html`](index.html) for phones and [`host.html`](host.html) for
   the host library, editor, presenter, console and report.
 
 ### Tested with a full room
@@ -242,7 +242,7 @@ GitHub Actions runs all three on every push and pull request.
 
 ## Roadmap and known issues
 
-Help is welcome on any of these. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Help is welcome on any of these. See [CONTRIBUTING.md](.github/CONTRIBUTING.md).
 
 - [ ] Two hand-over links opened at the same moment in one browser can drop one session from the host page's list.
   Open them one at a time for now.
@@ -255,8 +255,8 @@ Help is welcome on any of these. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Contributing
 
-Bug reports, fixes and new slide types are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) shows how to run it, where
-the code is and which checks to run before a pull request. To report a security problem, read [SECURITY.md](SECURITY.md).
+Bug reports, fixes and new slide types are welcome. [CONTRIBUTING.md](.github/CONTRIBUTING.md) shows how to run it, where
+the code is and which checks to run before a pull request. To report a security problem, read [SECURITY.md](.github/SECURITY.md).
 
 ## License
 

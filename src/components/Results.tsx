@@ -20,15 +20,15 @@ import {
   type QuestionRow,
   type Results,
   type Slide,
-} from '../lib/live'
-import { layoutCloud } from './cloudLayout'
-import { makeBody, runCloud, type Body } from './cloudPhysics'
+} from '../lib/deck'
+import { layoutCloud } from '../motion/cloudLayout'
+import { makeBody, runCloud, type Body } from '../motion/cloudPhysics'
 import { CountUp } from './CountUp'
-import { confetti, flashEnd, hop, shatter, sparkAt, useLandings } from './fx'
-import { cue } from './sound'
-import { RACE_MS, useBeat, useDrop, useRace } from './race'
-import { LETTERS } from './letters'
-import { useFontsReady, useSize, useSpaceBelow } from './useSize'
+import { confetti, flashEnd, hop, shatter, sparkAt, useLandings } from '../motion/fx'
+import { cue } from '../motion/sound'
+import { RACE_MS, useBeat, useDrop, useRace } from '../motion/race'
+import { LETTERS } from '../lib/letters'
+import { useFontsReady, useSize, useSpaceBelow } from '../lib/useSize'
 
 const pct = (n: number) => `${Math.round(n * 100)}%`
 const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches

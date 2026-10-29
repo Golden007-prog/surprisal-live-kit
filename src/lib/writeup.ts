@@ -1,5 +1,5 @@
 /** The report's data, and the session's answers written up as Markdown to paste into a follow-up. */
-import { isFlagged, type Deck, type Results, type Slide } from '../lib/live'
+import { isFlagged, type Deck, type Results, type Slide } from './deck'
 
 export type Export = {
   code: string

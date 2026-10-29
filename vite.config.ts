@@ -12,8 +12,8 @@ const routes = (): Plugin => ({
       const [path, query] = (req.url ?? '/').split('?')
       const q = query ? `?${query}` : ''
       const p = path.replace(/\/$/, '') || '/'
-      if (p === '/live/host') req.url = `/live-host.html${q}`
-      else if (p === '/live' || p === '/') req.url = `/live.html${q}`
+      if (p === '/live/host') req.url = `/host.html${q}`
+      else if (p === '/live' || p === '/') req.url = `/index.html${q}`
       next()
     })
   },
@@ -52,8 +52,8 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        live: resolve(__dirname, 'live.html'),
-        liveHost: resolve(__dirname, 'live-host.html'),
+        phone: resolve(__dirname, 'index.html'),
+        host: resolve(__dirname, 'host.html'),
       },
     },
   },

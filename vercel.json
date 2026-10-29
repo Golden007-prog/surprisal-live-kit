@@ -20,19 +20,19 @@
   "rewrites": [
     {
       "source": "/live/host",
-      "destination": "/live-host.html"
+      "destination": "/host.html"
     },
     {
       "source": "/live/host/",
-      "destination": "/live-host.html"
+      "destination": "/host.html"
     },
     {
       "source": "/live",
-      "destination": "/live.html"
+      "destination": "/index.html"
     },
     {
       "source": "/live/",
-      "destination": "/live.html"
+      "destination": "/index.html"
     }
   ],
   "headers": [

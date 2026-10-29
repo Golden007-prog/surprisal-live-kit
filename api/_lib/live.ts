@@ -36,7 +36,7 @@ import {
   type ResponseRow,
   type Results,
   type Slide,
-} from '../../src/lib/live.js' // .js: the Node runtime resolves ESM imports literally
+} from '../../src/lib/deck.js' // .js: the Node runtime resolves ESM imports literally
 import { clientIp, json, rateLimited } from './http.js'
 
 export type SessionRow = {

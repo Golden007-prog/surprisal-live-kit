@@ -16,11 +16,11 @@ import {
   type PublicState,
   type Results,
   type Slide,
-} from '../lib/live'
+} from '../lib/deck'
 import { BRAND, BrandMark } from '../brand'
-import { live, participantId, readJson, useNow, usePoll, writeJson, type ApiError } from './api'
-import { Board, GridChart, QaList, SlideResults } from './Results'
-import { LETTERS } from './letters'
+import { live, participantId, readJson, useNow, usePoll, writeJson, type ApiError } from '../lib/api'
+import { Board, GridChart, QaList, SlideResults } from '../components/Results'
+import { LETTERS } from '../lib/letters'
 
 type Joined = { code: string; name: string }
 const JOINED_KEY = 'live_kit_joined'

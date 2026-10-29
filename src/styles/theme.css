@@ -9,9 +9,9 @@
  *   --sds-paper, --sds-card, --sds-ink*   the ground and the text
  *   --sds-font-*          the four type roles
  * Change the dark values too. Keep text at 4.5:1 or more against --sds-paper and --sds-card.
- * The agree/disagree scale has its own palette (--lv-div-*) in src/live/live.css.
+ * The agree/disagree scale has its own palette (--lv-div-*) in src/styles/app.css.
  *
- * To use a web font, add its <link> or @font-face (in live.html and live-host.html, or here) and put its name first
+ * To use a web font, add its <link> or @font-face (in index.html and host.html, or here) and put its name first
  * in the matching --sds-font-* stack.
  */
 

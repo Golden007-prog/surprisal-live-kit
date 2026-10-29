@@ -1,7 +1,7 @@
 /** What the host's pages keep: the deck library (shared on the server when the admin key is set, else in this
  * browser), the sessions this browser hosts (their host tokens), and small helpers. */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { Deck } from '../lib/live'
+import type { Deck } from './deck'
 import { live, readJson, writeJson, type ApiError } from './api'
 
 export type Saved = { id: string; deck: Deck; updated: number; by?: string }

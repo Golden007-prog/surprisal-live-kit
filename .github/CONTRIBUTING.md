@@ -6,10 +6,10 @@ Thank you for helping. Bug reports, fixes, new slide types and more languages fo
 
 - **Report a bug.** Open an issue with the bug template. Say what you did, what you expected and what happened.
   A screenshot of the presenter and the phone helps a lot.
-- **Fix a known issue.** The list is in the README under [Roadmap and known issues](README.md#roadmap-and-known-issues).
+- **Fix a known issue.** The list is in the README under [Roadmap and known issues](/README.md#roadmap-and-known-issues).
 - **Suggest a slide type or a feature.** Open an issue with the feature template before you write the code, so we can
   agree on the shape first.
-- **Add words to the filter.** The list is `FLAGGED` in [`src/lib/live.ts`](src/lib/live.ts). Add whole words only,
+- **Add words to the filter.** The list is `FLAGGED` in [`src/lib/deck.ts`](/src/lib/deck.ts). Add whole words only,
   and say which language each one is from.
 
 ## Set it up
@@ -40,24 +40,29 @@ request. Check both light and dark.
 
 | Path | What it holds |
 |---|---|
-| [`api/_lib/live.ts`](api/_lib/live.ts) | All the server logic: one handler, an in-memory store and a Supabase store |
-| [`api/_lib/live.test.ts`](api/_lib/live.test.ts) | The server tests (vitest, in-memory store) |
-| [`src/lib/live.ts`](src/lib/live.ts) | Deck types, the deck cleaner, results maths, templates and the word filter. The server and the client share it. |
-| [`src/live/`](src/live) | The UI: `Phone`, `Host` (library), `Editor`, `Presenter`, `Stage`, `Results`, `Console`, `Report` |
-| [`src/styles/theme.css`](src/styles/theme.css) | Colours and fonts |
-| [`supabase/migrations/`](supabase/migrations) | The database |
-| [`scripts/`](scripts) | `smoke.mjs` (the browser check), `demo.mjs` (the sample room), `screenshots.mjs` (the README images) |
+| [`api/_lib/live.ts`](/api/_lib/live.ts) | All the server logic: one handler, an in-memory store and a Supabase store |
+| [`api/_lib/live.test.ts`](/api/_lib/live.test.ts) | The server tests (vitest, in-memory store) |
+| [`src/lib/deck.ts`](/src/lib/deck.ts) | Deck types, the deck cleaner, results maths, templates and the word filter. The server and the client share it. |
+| [`src/screens/`](/src/screens) | One file per screen: `Phone`, `Host` (library), `Editor`, `Presenter`, `Console`, `Report` |
+| [`src/components/`](/src/components) | The parts the screens share: `Stage` (the slide), `Results` (every chart), `Qr`, `CountUp` |
+| [`src/motion/`](/src/motion) | Animation and sound: the bar race, impact effects, the word cloud's layout and physics |
+| [`src/lib/`](/src/lib) | The browser's calls to the server, what the host's pages remember, the report write-up |
+| [`src/styles/`](/src/styles) | `theme.css` (colours and fonts), `app.css` (every screen), `lobby.css` (the name pile) |
+| [`src/brand.tsx`](/src/brand.tsx) | The name, logo and link, read from `.env` |
+| [`index.html`](/index.html), [`host.html`](/host.html) | The two pages: the phone and the host |
+| [`supabase/migrations/`](/supabase/migrations) | The database |
+| [`scripts/`](/scripts) | `smoke.mjs` (the browser check), `demo.mjs` (the sample room), `screenshots.mjs` (the README images) |
 
 ## Add a slide type
 
 A slide type touches these places. Use an existing type of the same shape as your guide.
 
-1. The type and its fields in `src/lib/live.ts`, and its case in `cleanDeck`.
-2. Its answer check and its results in `src/lib/live.ts`.
+1. The type and its fields in `src/lib/deck.ts`, and its case in `cleanDeck`.
+2. Its answer check and its results in `src/lib/deck.ts`.
 3. Tests in `api/_lib/live.test.ts`: a good answer, a bad answer and the results.
-4. The phone's input in `src/live/Phone.tsx`.
-5. The screen's results in `src/live/Results.tsx`.
-6. The editor's fields in `src/live/Editor.tsx`.
+4. The phone's input in `src/screens/Phone.tsx`.
+5. The screen's results in `src/components/Results.tsx`.
+6. The editor's fields in `src/screens/Editor.tsx`.
 7. A slide in `scripts/demo.mjs`, with answers, so everyone can see it.
 
 ## Style
@@ -70,4 +75,4 @@ A slide type touches these places. Use an existing type of the same shape as you
 
 ## License
 
-By contributing, you agree that your contribution is licensed under the [MIT License](LICENSE).
+By contributing, you agree that your contribution is licensed under the [MIT License](/LICENSE).

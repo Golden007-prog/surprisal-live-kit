@@ -9,12 +9,12 @@
  *   /live/host?report=<CODE>            the report after a session
  */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
-import { KIND_LABEL, TEMPLATES, cleanDeck, uid, type Deck } from '../lib/live'
+import { KIND_LABEL, TEMPLATES, cleanDeck, uid, type Deck } from '../lib/deck'
 import { BRAND, BrandMark } from '../brand'
-import { joinHost, readJson, writeJson } from './api'
+import { joinHost, readJson, writeJson } from '../lib/api'
 import { Console } from './Console'
 import { Editor } from './Editor'
-import { HOST_NAME, THEME, hostings, rememberHosting, useLibrary, type Hosting, type Saved } from './hostStore'
+import { HOST_NAME, THEME, hostings, rememberHosting, useLibrary, type Hosting, type Saved } from '../lib/hostStore'
 import { Presenter } from './Presenter'
 import { Report } from './Report'
 

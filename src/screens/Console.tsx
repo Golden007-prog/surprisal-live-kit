@@ -4,11 +4,11 @@
  * the laptop shares the presenter. The phone gets the host key from a QR code that only this window shows.
  */
 import { useState, type ReactNode } from 'react'
-import { ANSWERABLE, KIND_LABEL } from '../lib/live'
-import { useHostSession } from './hostSession'
-import { consoleUrl, type Hosting } from './hostStore'
-import { Qr } from './Qr'
-import { SlideResults } from './Results'
+import { ANSWERABLE, KIND_LABEL } from '../lib/deck'
+import { useHostSession } from '../lib/hostSession'
+import { consoleUrl, type Hosting } from '../lib/hostStore'
+import { Qr } from '../components/Qr'
+import { SlideResults } from '../components/Results'
 
 export function Console({ hosting, themeBtn }: { hosting: Hosting; themeBtn: ReactNode }) {
   const { s, error, control, goto, remaining, approve, reject, actions } = useHostSession(hosting)

@@ -1,10 +1,10 @@
 /** One live session as the host sees it: the polled host state, the controls, the clock, and the moderation actions.
  * The presenter and the console both use it, so a second window or a phone drives the same session. */
 import { useCallback, useMemo } from 'react'
-import { type HostState, type QuestionRow, type Slide } from '../lib/live'
+import { type HostState, type QuestionRow, type Slide } from './deck'
 import { live, useNow, usePoll } from './api'
 import { type Hosting } from './hostStore'
-import { type HostActions } from './Results'
+import { type HostActions } from '../components/Results'
 
 export function clockSeconds(slide: Slide): number | null {
   if (slide.kind === 'quiz') return slide.seconds

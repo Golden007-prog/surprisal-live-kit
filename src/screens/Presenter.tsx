@@ -3,12 +3,12 @@
  * not see (notes, held answers, the next slide) lives on the console, opened with C in a second window or on a phone.
  */
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
-import { ANSWERABLE } from '../lib/live'
-import { joinHost, joinUrl, live } from './api'
-import { useHostSession } from './hostSession'
-import { consoleUrl, download, slug, type Hosting } from './hostStore'
-import { armSound, setSound, soundOn, useSound } from './sound'
-import { JoinCard, Stage } from './Stage'
+import { ANSWERABLE } from '../lib/deck'
+import { joinHost, joinUrl, live } from '../lib/api'
+import { useHostSession } from '../lib/hostSession'
+import { consoleUrl, download, slug, type Hosting } from '../lib/hostStore'
+import { armSound, setSound, soundOn, useSound } from '../motion/sound'
+import { JoinCard, Stage } from '../components/Stage'
 
 /** One reaction rising: where it starts (% across), when (ms after its poll), how long it rises, how far it sways. */
 type Float = { id: string; emoji: string; x: number; delay: number; rise: number; sway: number; size: number }

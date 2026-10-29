@@ -17,11 +17,11 @@ import {
   type Results,
   type Slide,
   type SlideKind,
-} from '../lib/live'
-import { joinHost, joinUrl, live, writeJson, type ApiError } from './api'
-import { ADMIN, adminKey, download, slug, type Hosting, type Saved } from './hostStore'
-import { LETTERS } from './letters'
-import { Stage } from './Stage'
+} from '../lib/deck'
+import { joinHost, joinUrl, live, writeJson, type ApiError } from '../lib/api'
+import { ADMIN, adminKey, download, slug, type Hosting, type Saved } from '../lib/hostStore'
+import { LETTERS } from '../lib/letters'
+import { Stage } from '../components/Stage'
 
 const ADDABLE: SlideKind[] = ['poll', 'wordcloud', 'open', 'scale', 'rank', 'points', 'number', 'grid', 'quiz', 'qa', 'content', 'leaderboard']
 
