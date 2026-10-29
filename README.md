@@ -245,13 +245,13 @@ GitHub Actions runs all three on every push and pull request.
 Help is welcome on any of these. See [CONTRIBUTING.md](.github/CONTRIBUTING.md).
 
 - [ ] Two hand-over links opened at the same moment in one browser can drop one session from the host page's list.
-  Open them one at a time for now.
-- [ ] A session opened from a hand-over link shows as "Live session" on the host page, not with its deck title.
-- [ ] At window sizes of 1440×790 or less, a 6-option poll and the prediction chart can run under the bottom bar.
-- [ ] The rate limits are kept per server instance, so they slow abuse but are not a hard wall.
-- [ ] Names under reactions (the server does not send them yet).
-- [ ] Push instead of polling, for rooms of many hundreds.
-- [ ] The word filter in more languages.
+  Open them one at a time for now. ([#1](https://github.com/habit-ai/surprisal-live-kit/issues/1))
+- [ ] A session opened from a hand-over link shows as "Live session" on the host page, not with its deck title. ([#2](https://github.com/habit-ai/surprisal-live-kit/issues/2))
+- [ ] At window sizes of 1440×790 or less, a 6-option poll and the prediction chart can run under the bottom bar. ([#3](https://github.com/habit-ai/surprisal-live-kit/issues/3))
+- [ ] The rate limits are kept per server instance, so they slow abuse but are not a hard wall. ([#4](https://github.com/habit-ai/surprisal-live-kit/issues/4))
+- [ ] Names under reactions (the server does not send them yet). ([#5](https://github.com/habit-ai/surprisal-live-kit/issues/5))
+- [ ] Push instead of polling, for rooms of many hundreds. ([#6](https://github.com/habit-ai/surprisal-live-kit/issues/6))
+- [ ] The word filter in more languages. ([#7](https://github.com/habit-ai/surprisal-live-kit/issues/7))
 
 ## Contributing
 
